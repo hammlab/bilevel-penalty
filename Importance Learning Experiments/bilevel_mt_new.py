@@ -87,8 +87,8 @@ class bilevel_mt(object):
         dfdv_ = tf.gradients(self.loss_upper1+self.loss_upper2,self.var_model,stop_gradients=self.var_model)
         ## Use stop_gradient so that it's a constant w.r.t u when differentiated w.r.t u.
 
-        #self.loss_upper3 = -self.sig*tf.reduce_sum(tf.multiply(dgdv,dfdv_))/batch_size
-        self.loss_upper3 = -self.sig*mult_lists(dgdv,dfdv_)/batch_size
+        #self.loss_upper3 = -self.sig*tf.reduce_sum(tf.multiply(dgdv,dfdv_))
+        self.loss_upper3 = -self.sig*mult_lists(dgdv,dfdv_)
 
         
         ## EXCLUDE var_model for initialization
