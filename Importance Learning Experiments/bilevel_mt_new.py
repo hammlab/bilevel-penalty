@@ -75,7 +75,7 @@ class bilevel_mt(object):
         self.output_train = model.get_logits(self.x_train)
         self.output_val = model.get_logits(self.x_val)
         ## The lower loss is defined on training data
-        self.loss_lower = tf.reduce_mean(tf.multiply(self.importance,tf.nn.softmax_cross_entropy_with_logits(logits=self.output_train,labels=self.y_train)))/tf.reduce_mean(self.importance)
+        self.loss_lower = tf.reduce_sum(tf.multiply(self.importance,tf.nn.softmax_cross_entropy_with_logits(logits=self.output_train,labels=self.y_train)))/tf.reduce_sum(self.importance)
         #self.loss_lower = tf.reduce_mean(tf.multiply(self.importance,tf.nn.softmax_cross_entropy_with_logits(logits=self.output_train,labels=self.y_train)))
         #tgrad = tf.square(tf.gradients(self.loss_lower,self.var_model)[0]) 
         ##self.loss_gradnorm = 0.5*tf.reduce_sum(tgrad)/np.float(self.batch_size)
