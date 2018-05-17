@@ -98,7 +98,7 @@ def main(argv=None):
 
     ## Metatrain
     #print('\n\nTraining start:')
-    if False:
+    if True:
         for epoch in range(nepochs):
             #tick = time.time()        
             nb_batches = int(np.floor(float(Ntrain) / batch_size))
@@ -116,7 +116,7 @@ def main(argv=None):
                 print('epoch %d (rho=%f, lamb=%f, eps=%f): h=%f + %f + %f= %f, l2reg=%f'%
                     (epoch,rho_t,lamb_t,eps_t,f,gvnorm,lamb_g,f+gvnorm+lamb_g,l2reg))
 
-            if epoch%10==0:
+            if epoch%50==0:
                 ## Measure test error
                 nb_batches = int(np.floor(float(Ntest)/batch_size))
                 acc = 0#np.nan*np.ones(nb_batches)
