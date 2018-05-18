@@ -18,11 +18,11 @@ class bilevel_l2reg(object):
         self.y_test_tf = y_test_tf
         self.cls_train = cls_train
         self.cls_test = cls_test
-        #self.sig = tf.Variable([0.,'sig')
-        self.sig = [tf.Variable(tf.zeros_like(v)) for v in var_cls] # u
         self.var_cls = var_cls # v
         self.batch_size = batch_size
 
+        #self.sig = tf.Variable([0.,'sig')
+        self.sig = [tf.Variable(tf.zeros_like(v)) for v in var_cls] # u
         # if 'bias' not in v.name 
         #self.l2reg = tf.exp(self.sig)*l2norm_sq(self.var_cls)
         self.l2reg = 0.5*tf.reduce_sum([tf.reduce_sum(tf.multiply(tf.exp(self.sig[i]),tf.square(self.var_cls[i]))) for i in range(len(self.var_cls))])
