@@ -18,10 +18,10 @@ class bilevel_l2reg_simple(object):
         self.y_test_tf = y_test_tf
         self.cls_train = cls_train
         self.cls_test = cls_test
-        self.sig = tf.Variable(0.,'sig')
         self.var_cls = var_cls # v
         self.batch_size = batch_size
 
+        self.sig = tf.Variable(0.,'sig')
         self.l2reg = tf.exp(self.sig)*l2norm_sq(self.var_cls)
         self.f = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.cls_test,labels=self.y_test_tf))
         self.g = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.cls_train,labels=self.y_train_tf)) + self.l2reg
