@@ -3,15 +3,6 @@ import sys
 sys.path.append('/media/data/akshay/Bilevel Optimization/methods')
 
 import keras
-from keras.layers import Dense, Conv2D, BatchNormalization, Activation
-from keras.layers import AveragePooling2D, Input, Flatten
-from keras.optimizers import Adam
-from keras.callbacks import ModelCheckpoint, LearningRateScheduler
-from keras.callbacks import ReduceLROnPlateau
-from keras.preprocessing.image import ImageDataGenerator
-from keras.regularizers import l2
-from keras import backend as K
-from keras.models import Model
 from keras.datasets import cifar10
 import numpy as np
 import os
@@ -21,12 +12,8 @@ import logging
 from cleverhans.utils import set_log_level
 from cleverhans.utils_tf import model_train, model_eval, batch_eval, model_argmax
 import time
-from bilevel_penalty_mt_keras import bilevel_mt
-import cPickle
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation, Flatten
-from keras.layers import Conv2D, MaxPooling2D
-import time
+from bilevel_penalty_mt import bilevel_mt
+from cifar10_model import CIFAR
 
 batch_size = 32
 num_classes = 10
@@ -113,40 +100,6 @@ np.save("Y_val.npy", Y_val)
 np.save("X_test.npy", X_test)
 np.save("Y_test.npy", Y_test)
 
-Keras_model = Sequential()
-Keras_model.add(Conv2D(48, (3, 3), border_mode='same', input_shape=x_train.shape[1:]))
-Keras_model.add(Activation('relu'))
-Keras_model.add(Conv2D(48, (3, 3)))
-Keras_model.add(Activation('relu'))
-Keras_model.add(MaxPooling2D(pool_size=(2, 2)))
-Keras_model.add(Dropout(0.25))
-
-Keras_model.add(Conv2D(96, (3, 3), border_mode='same'))
-Keras_model.add(Activation('relu'))
-Keras_model.add(Conv2D(96, (3, 3)))
-Keras_model.add(Activation('relu'))
-Keras_model.add(MaxPooling2D(pool_size=(2, 2)))
-Keras_model.add(Dropout(0.25))
-
-Keras_model.add(Conv2D(192, (3, 3), border_mode='same'))
-Keras_model.add(Activation('relu'))
-Keras_model.add(Conv2D(192, (3, 3)))
-Keras_model.add(Activation('relu'))
-Keras_model.add(MaxPooling2D(pool_size=(2, 2)))
-Keras_model.add(Dropout(0.25))
-
-Keras_model.add(Flatten())
-Keras_model.add(Dense(512))
-Keras_model.add(Activation('relu'))
-Keras_model.add(Dropout(0.5))
-Keras_model.add(Dense(256))
-Keras_model.add(Activation('relu'))
-Keras_model.add(Dropout(0.5))
-Keras_model.add(Dense(num_classes))
-Keras_model.add(Activation('softmax'))
-# Compile the model
-Keras_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-
 # Object used to keep track of (and return) key accuracies
 report = AccuracyReport()
 # Set TF random seed to improve reproducibility
@@ -164,10 +117,10 @@ y_tf = tf.placeholder(tf.float32, shape=(None, 10))
 # Define TF model graph
 scope_model = 'cifar_classifier'
 with tf.variable_scope(scope_model):  
-   model = Keras_model
-preds = model(x_tf)
+   model = CIFAR()
+preds = model.get_probs(x_tf)
     
-var_model = model.trainable_weights      
+var_model = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,scope=scope_model)        
 saver_model = tf.train.Saver(var_model, max_to_keep = None)
 print("Defined TensorFlow model graph.")
 
