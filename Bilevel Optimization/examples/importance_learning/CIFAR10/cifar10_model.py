@@ -76,7 +76,7 @@ class CIFAR(Model):
         #h_dropout4 = self._dropout(h_fc1, 0.5)#0.5
 
         # second fully connected layer
-        h_fc2 = tf.matmul(h_fc1, self.W_fc2) + self.b_fc2
+        h_fc2 = tf.nn.relu(tf.matmul(h_fc1, self.W_fc2) + self.b_fc2)
         #h_dropout5 = self._dropout(h_fc2, 0.5)#0.5
         
         # output layer
