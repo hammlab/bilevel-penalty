@@ -173,11 +173,11 @@ def main(argv=None):
     ## Define model
     x_train_tf = tf.placeholder(tf.float32, shape=(batch_size,height,width,nch))
     y_train_tf = tf.placeholder(tf.float32, shape=(batch_size,num_class))
-    x_test_tf = tf.placeholder(tf.float32, shape=(batch_size,height,width,nch))
-    y_test_tf = tf.placeholder(tf.float32, shape=(batch_size,num_class))
+    x_val_tf = tf.placeholder(tf.float32, shape=(batch_size,height,width,nch))
+    y_val_tf = tf.placeholder(tf.float32, shape=(batch_size,num_class))
 
     x_train_augm_tf, _ = augment(x_train_tf, y_train_tf, horizontal_flip=True, rotate=15, crop_probability=1., crop_min_percent=0.8, crop_max_percent=1.2)
-    x_test_augm_tf, _ = augment(x_test_tf, y_test_tf, horizontal_flip=True, rotate=15, crop_probability=1., crop_min_percent=0.8, crop_max_percent=1.2)
+    x_val_augm_tf, _ = augment(x_val_tf, y_val_tf, horizontal_flip=True, rotate=15, crop_probability=1., crop_min_percent=0.8, crop_max_percent=1.2)
 
 
     with tf.variable_scope('cls',reuse=False):
@@ -185,8 +185,8 @@ def main(argv=None):
     var_cls = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,scope='cls')
     with tf.variable_scope('cls',reuse=True):
         cls_train_augm = make_classifier(x_train_augm_tf)        
-        cls_test = make_classifier(x_test_tf)
-        cls_test_augm = make_classifier(x_test_augm_tf)
+        cls_val = make_classifier(x_val_tf)
+        cls_val_augm = make_classifier(x_val_augm_tf)
 
     saver_cls = tf.train.Saver(var_cls,max_to_keep=None)
 
@@ -210,8 +210,8 @@ def main(argv=None):
     ## Bilevel training
     #########################################################################################################
 
-    bl_imp = bilevel_importance(sess,x_train_tf,x_train_augm_tf,x_test_tf,x_test_augm_tf,y_train_tf,y_test_tf,
-        cls_train,cls_train_augm,cls_test,cls_test_augm,var_cls,
+    bl_imp = bilevel_importance(sess,x_train_tf,x_train_augm_tf,x_val_tf,x_val_augm_tf,y_train_tf,y_val_tf,
+        cls_train,cls_train_augm,cls_val,cls_val_augm,var_cls,
         batch_size,lr_u,lr_v,rho_0,lamb_0,eps_0,c_rho,c_lamb,c_eps,istraining_tf)
 
     sess.run(tf.global_variables_initializer())

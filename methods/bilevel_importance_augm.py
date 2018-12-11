@@ -7,21 +7,21 @@ from bilevel_penalty import *
 
 class bilevel_importance(object):
 
-    def __init__(self,sess,x_train_tf,x_train_augm_tf,x_test_tf,x_test_augm_tf,y_train_tf,y_test_tf,
-        cls_train,cls_train_augm,cls_test,cls_test_augm,var_cls,
+    def __init__(self,sess,x_train_tf,x_train_augm_tf,x_val_tf,x_val_augm_tf,y_train_tf,y_val_tf,
+        cls_train,cls_train_augm,cls_val,cls_val_augm,var_cls,
         batch_size,lr_u,lr_v,rho_0,lamb_0,eps_0,c_rho,c_lamb,c_eps,istraining_tf):
     
         self.sess = sess
         self.x_train_tf = x_train_tf
         self.x_train_augm_tf = x_train_augm_tf
-        self.x_test_tf = x_test_tf
-        self.x_test_augm_tf = x_test_augm_tf
+        self.x_val_tf = x_val_tf
+        self.x_val_augm_tf = x_val_augm_tf
         self.y_train_tf = y_train_tf
-        self.y_test_tf = y_test_tf
+        self.y_val_tf = y_val_tf
         self.cls_train = cls_train
         self.cls_train_augm = cls_train_augm
-        self.cls_test = cls_test
-        self.cls_test_augm = cls_test_augm
+        self.cls_val = cls_val
+        self.cls_val_augm = cls_val_augm
         self.var_cls = var_cls # v
         self.batch_size = batch_size
         self.istraining_tf = istraining_tf
@@ -31,7 +31,7 @@ class bilevel_importance(object):
         self.assign_importance_atanh = tf.assign(self.importance_atanh,self.importance_atanh_tf)
         importance = 0.5*(tf.tanh(self.importance_atanh) + 1.) # between 0 and 1
 
-        self.f = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.cls_test_augm,labels=self.y_test_tf))
+        self.f = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.cls_val_augm,labels=self.y_val_tf))
         self.g = tf.reduce_sum(tf.multiply(importance,tf.nn.softmax_cross_entropy_with_logits(logits=self.cls_train_augm,labels=self.y_train_tf)))/tf.reduce_sum(importance)
         
         self.bl = bilevel_penalty(sess,self.f,self.g,self.importance_atanh,var_cls,lr_u,lr_v,rho_0,lamb_0,eps_0,c_rho,c_lamb,c_eps)
@@ -44,10 +44,10 @@ class bilevel_importance(object):
 
 
 
-    def train(self, x_train, y_train, x_test, y_test, importance_atanh, niter=1):
+    def train(self, x_train, y_train, x_val, y_val, importance_atanh, niter=1):
         self.sess.run(self.assign_importance_atanh,feed_dict={self.importance_atanh_tf:importance_atanh})
 
-        feed_dict={self.x_train_augm_tf:x_train, self.y_train_tf:y_train, self.x_test_augm_tf:x_test, self.y_test_tf:y_test}
+        feed_dict={self.x_train_augm_tf:x_train, self.y_train_tf:y_train, self.x_val_augm_tf:x_val, self.y_val_tf:y_val}
         f,gvnorm,lamb_g = self.bl.train(feed_dict,niter)
         timp_atanh = self.sess.run(self.importance_atanh)
 
@@ -92,8 +92,8 @@ class bilevel_importance(object):
             print('Warning: Data size is not a multiple of batch_size!!!!')
         for batch in range(nb_batches):
             ind_batch = range(batch_size*batch,min(batch_size*(1+batch),Ntest))
-            pred = self.sess.run(self.cls_test,{self.x_test_tf:x_test[ind_batch,:],self.istraining_tf:False})
-            acc += np.sum(np.argmax(pred,1)==np.argmax(y_test[ind_batch,:],1))
+            pred = self.sess.run(self.cls_val,{self.x_val_tf:x_val[ind_batch,:],self.istraining_tf:False})
+            acc += np.sum(np.argmax(pred,1)==np.argmax(y_val[ind_batch,:],1))
             preds[ind_batch] = np.argmax(pred,1)
         acc /= np.float32(nb_batches*batch_size)
         print('mean acc = %f'%(acc))
