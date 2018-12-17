@@ -27,16 +27,25 @@ class bilevel_semi_gan(object):
 
 
         ## Define losses
-        
+        '''
+        loss_sup   = -Ex[log p(y|x,y<=k)]  : function of disc 
+        loss_unlab = -Ex[log 1-p(y=k+1|x)] : function of disc
+        loss_gen   = -Ez[log p(y=k+1|x)]   : function of disc and gen
+        featmat : function of disc and gen
+
+        '''
         loss_sup = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_val_ph, logits=logits_val))
-        loss_unsup = - 0.5*tf.reduce_mean(tf.reduce_logsumexp(logits_train, axis=1)) \
-                   + 0.5*tf.reduce_mean(tf.nn.softplus(tf.reduce_logsumexp(logits_train, axis=1))) \
-                   + 0.5*tf.reduce_mean(tf.nn.softplus(tf.reduce_logsumexp(logits_gen, axis=1)))
+        loss_unlab = tf.reduce_mean(tf.nn.softplus(tf.reduce_logsumexp(logits_train, axis=1))) \
+                        -tf.reduce_mean(tf.reduce_logsumexp(logits_train, axis=1)) 
+        loss_gen = tf.reduce_mean(tf.nn.softplus(tf.reduce_logsumexp(logits_gen, axis=1)))
+        #loss_unsup = loss_unlab + loss_gen
+
         m1 = tf.reduce_mean(feat_train, axis=0)
         m2 = tf.reduce_mean(feat_gen, axis=0)
+        loss_featmatch = tf.reduce_mean(tf.abs(m1 - m2))
 
-        self.f = loss_sup + loss_unsup
-        self.g = tf.reduce_mean(tf.abs(m1 - m2))
+        self.f = loss_sup + loss_unlab + loss_gen
+        self.g = loss_featmatch 
 
         self.bl = bilevel_penalty(sess,self.f,self.g,var_disc,var_gen,lr_u,lr_v,rho_0,lamb_0,eps_0,c_rho,c_lamb,c_eps)
         
@@ -62,9 +71,9 @@ class bilevel_semi_gan(object):
         return [f,gvnorm,lamb_g]
 
 
-    def update_singlelevel(self, x_train, x_val, y_val, lamb):
+    def update_singlelevel(self, x_train, x_val, y_val, lamb=1.):
         feed_dict={self.x_train_ph:x_train,self.x_val_ph:x_val,self.y_val_ph:y_val}
-        f,g = self.bl.update_singlelevle,(feed_dict,lamb)
+        f,g = self.bl.update_singlelevel(feed_dict,lamb)
 
         return [f,g]
 

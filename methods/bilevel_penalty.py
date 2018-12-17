@@ -106,7 +106,7 @@ class bilevel_penalty(object):
         return [f,gvnorm,lamb_g]
 
 
-    def update_singlelevel(self,feed_dict,lamb=1.):
+    def update_singlelevel(self,feed_dict,lamb):
         feed_dict[self.lamb_ph] = lamb       
         self.sess.run([self.min_u_singlelevel,self.min_v_singlelevel],feed_dict)
         return self.sess.run([self.f,self.g],feed_dict)
