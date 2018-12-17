@@ -33,8 +33,8 @@ from bilevel_semi_gan import *
 
 import time
 
-lr_u = 1E-4
-lr_v = 1E-4
+lr_u = 1E-3
+lr_v = 1E-3
 
 nepochs = 101
 niter = 1
@@ -148,12 +148,13 @@ def main(argv=None):
                 ind_val = np.random.choice(Nval, size=(batch_size), replace=False)
                 #f,gvnorm,lamb_g = bl.train(X_train[ind_tr,:],X_val[ind_val,:],Y_val[ind_val,:],niter)
                 if epoch<30: # Burn-in ?
-                    f,g = bl.update_alternating(X_train[ind_tr,:],X_val[ind_val,:],Y_val[ind_val,:])
+                    #f,g = bl.update_alternating(X_train[ind_tr,:],X_val[ind_val,:],Y_val[ind_val,:])
+                    f,g = bl.update_singlelevel(X_train[ind_tr,:],X_val[ind_val,:],Y_val[ind_val,:])
                 else:
                     f,gvnorm,lamb_g = bl.update(X_train[ind_tr,:],X_val[ind_val,:],Y_val[ind_val,:])
                     
 
-            if epoch<30:#%1==0:
+            if epoch<10:#%1==0:
                 print('epoch %d: f=%f, g=%f'%(epoch,f,g))
             else:
                 rho_t,lamb_t,eps_t = sess.run([bl.bl.rho_t,bl.bl.lamb_t,bl.bl.eps_t])
