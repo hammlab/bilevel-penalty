@@ -3,9 +3,8 @@
 Solve min_u f(u,v) s.t. v = argmin g(u,v) by repeating
 single update:
 while del_u^2 + del_v^2 > eps_t^2 or maxiter
-    for niter
-        del_v = (fv + rho_t gvv*gv + lamb_t*gv)
-        v = v - lr_v*delv
+    del_v = (fv + rho_t gvv*gv + lamb_t*gv)
+    v = v - lr_v*delv
 
     del_u = (fu + rho_t guv*gv + lamb_t*gu)            
     u = u - lr_u*del_u
@@ -79,16 +78,20 @@ class bilevel_penalty(object):
 
         #self.del_v,_ = zip(*(optim_v.compute_gradients(loss, var_list=v)
         #self.loss_simple = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=g,labels=self.y_train_tf))
-        self.min_v_simple = tf.train.AdamOptimizer(lr_v).minimize(g,var_list=v)
-        self.loss_singlelevel = f+lamb_0*g
+
+        ## singlelevel: min_u,v [f(u,v) + l*g(u,v)]
+        self.lamb_ph = tf.placeholder_with_default(1.,shape=())
+        self.loss_singlelevel = f + self.lamb_ph*g
         self.min_u_singlelevel = tf.train.AdamOptimizer(lr_u).minimize(self.loss_singlelevel,var_list=u)
-        self.min_v_singlelevel = tf.train.AdamOptimizer(lr_v).minimize(self.loss_singlelevel,var_list=v)        
-        #self.loss_singlesimple = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.cls_train,labels=self.y_train_tf))
-        #self.optim_simple = tf.train.AdamOptimizer(lr_v).minimize(self.loss_simple,var_list=self.var_cls)
+        self.min_v_singlelevel = tf.train.AdamOptimizer(lr_v).minimize(self.loss_singlelevel,var_list=v)
+
+        ## alternating: min_u f(u,v), min_v g(u,v)
+        self.min_u_alternating = tf.train.AdamOptimizer(lr_u).minimize(f,var_list=u)
+        self.min_v_alternating = tf.train.AdamOptimizer(lr_v).minimize(g,var_list=v)        
 
         
 
-    def train(self,feed_dict,niter=1):
+    def update(self,feed_dict,niter=1):
 
         for it in range(niter):
             self.sess.run(self.min_v,feed_dict)
@@ -103,16 +106,15 @@ class bilevel_penalty(object):
         return [f,gvnorm,lamb_g]
 
 
-    def train_simple(self,feed_dict,niter=1):
-        for it in range(niter):
-            self.sess.run(self.min_v_simple,feed_dict)
-        return self.sess.run(self.loss_simple,feed_dict)
+    def update_singlelevel(self,feed_dict,lamb=1.):
+        feed_dict[self.lamb_ph] = lamb       
+        self.sess.run([self.min_u_singlelevel,self.min_v_singlelevel],feed_dict)
+        return self.sess.run([self.f,self.g],feed_dict)
 
-    def train_singlelevel(self,feed_dict,niter=1):
-        for it in range(niter):
-            self.sess.run(self.min_v_singlelevel,feed_dict)
-        self.sess.run(self.min_u_singlelevel,feed_dict)
-        return self.sess.run(self.loss_singlelevel,feed_dict)
+
+    def update_alternating(self,feed_dict):
+        self.sess.run([self.min_u_alternating,self.min_v_alternating],feed_dict)
+        return self.sess.run([self.f,self.g],feed_dict)
     
 
     '''
