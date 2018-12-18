@@ -1,4 +1,4 @@
-## test_bilevel_semi_label_mnist.py
+## test_bilevel_semi_label_svhn.py
 
 ## min_Y ErrVal(w) s.t. w=argmin ErrTr(Y;w)
 
@@ -22,10 +22,10 @@ from mpl_toolkits.axes_grid1 import ImageGrid
 
 import keras
 #from keras.datasets import cifar10, cifar100
-from keras.datasets import mnist
+#from keras.datasets import svhn
+from scipy.io import loadmat
 
-
-from mnist_gan import discriminator, generator
+from svhn_gan import discriminator, generator
 
 #from cleverhans.utils_mnist import data_mnist
 
@@ -51,7 +51,7 @@ c_eps = 0.5
 
 height = 32
 width = 32
-nch = 1
+nch = 3
 num_class = 10
 
 dim_gen = 100
@@ -65,32 +65,47 @@ def main(argv=None):
     sess = tf.Session()
 
     ## Read data
-    #tX, tY, tX_test, tY_test = data_mnist(train_start=0, train_end=60000,test_start=0,test_end=10000)
-    tX = np.load('mnist32x32_trainx.npy')
-    tX_test = np.load('mnist32x32_testx.npy')
-    (_, ty), (_, ty_test) = mnist.load_data()
+    train_data = loadmat('train_32x32.mat')
+    tX = train_data['X'].transpose((3,0,1,2))
+    ty = train_data['y'].flatten()
+    ty[ty==10] = 0
+    del train_data
+
+    test_data = loadmat('test_32x32.mat')
+    tX_test = test_data['X'].transpose((3,0,1,2))
+    ty_test = test_data['y'].flatten()
+    ty_test[ty_test==10] = 0
+    del test_data
+
     #(tX, ty), (tX_test, ty_test) = mnist.load_data()
     tX = 2*(tX/255.)-1
     tX_test = 2*(tX_test/255)-1
     tY = keras.utils.to_categorical(ty,num_class)
     tY_test = keras.utils.to_categorical(ty_test,num_class)
 
-    Ntrain = 50000
-    Nval = 100
-    Ntest = 10000
+    Nval = 1000
+    Ntrain = 72000  #73257
+    Ntest = 26000  #26032
     X_train = tX[:Ntrain,:]
     #Y_train = tY[:5000,:]
     Y_train = np.zeros((Ntrain,num_class))
     Y_train[np.arange(Ntrain),np.argmax(tY[:Ntrain,:],1)%num_class] = 1.
-    X_val = tX[50000:(50000+Nval),:]
+    X_val = tX[Ntrain:(Ntrain+Nval),:]
     #Y_val = tY[50000:50500,:]
     Y_val = np.zeros((Nval,num_class))
-    Y_val[np.arange(Nval),np.argmax(tY[50000:(50000+Nval),:],1)%num_class] = 1.
+    Y_val[np.arange(Nval),np.argmax(tY[Ntrain:(Ntrain+Nval),:],1)%num_class] = 1.
     #Ntrain = X_train.shape[0]
     #Nval = X_val.shape[0]
     X_test = tX_test[:Ntest,:]
     Y_test = np.zeros((Ntest,num_class))
     Y_test[np.arange(Ntest),np.argmax(tY_test[:Ntest,:],1)%num_class] = 1.
+
+    #print(X_train.shape)
+    #print(X_val.shape)
+    #print(X_test.shape)
+    #print(Y_train.shape)
+    #print(Y_val.shape)
+    #print(Y_test.shape)
 
     ## Define model
     #print('\n\nDefining models:')
@@ -147,21 +162,16 @@ def main(argv=None):
                 ind_tr = ind_shuf[ind_batch]
                 ind_val = np.random.choice(Nval, size=(batch_size), replace=False)
                 #f,gvnorm,lamb_g = bl.train(X_train[ind_tr,:],X_val[ind_val,:],Y_val[ind_val,:],niter)
-                
-                ## Singlelevel cannot work, because min_v loss_gen is wrong. It should be min_v -loss_gen.
-                if True:#epoch<20: # Burn-in ?
+                if True:#epoch<50: # Burn-in ?
                     f,g = bl.update_alternating(X_train[ind_tr,:],X_val[ind_val,:],Y_val[ind_val,:])
-                    #f,g = bl.update_singlelevel(X_train[ind_tr,:],X_val[ind_val,:],Y_val[ind_val,:])
+                    #f,g = bl.update_singlelevel(X_train[ind_tr,:],X_val[ind_val,:],Y_val[ind_val,:])                    
                 else:
-                    #f,g = bl.update_alternating(X_train[ind_tr,:],X_val[ind_val,:],Y_val[ind_val,:])
                     f,gvnorm,lamb_g = bl.update(X_train[ind_tr,:],X_val[ind_val,:],Y_val[ind_val,:])
                     
 
-            if True:#epoch<20:#%1==0:
-                pass
-                #print('epoch %d: f=%f, g=%f'%(epoch,f,g))
+            if True:#epoch<50:#%1==0:
+                print('epoch %d: f=%f, g=%f'%(epoch,f,g))
             else:
-                #print('epoch %d: f=%f, g=%f'%(epoch,f,g))
                 rho_t,lamb_t,eps_t = sess.run([bl.bl.rho_t,bl.bl.lamb_t,bl.bl.eps_t])
                 print('epoch %d (rho=%f, lamb=%f, eps=%f): h=%f + %f + %f= %f'%
                     (epoch,rho_t,lamb_t,eps_t,f,gvnorm,lamb_g,f+gvnorm+lamb_g))
@@ -179,7 +189,7 @@ def main(argv=None):
                 
     sess.close()
 
-    ## (100 labeled): using train_aternating => 98% after 100 epochs (lr=1E-4), but decreases afterwards 
+    ## (1000 labeled): Goal is 92% or higher. It reaches 91%, but decreases/unstable with lr=1E-3
 
 
 ##############################################################################################################

@@ -31,7 +31,7 @@ class bilevel_semi_gan(object):
         loss_sup   = -Ex[log p(y|x,y<=k)]  : function of disc 
         loss_unlab = -Ex[log 1-p(y=k+1|x)] : function of disc
         loss_gen   = -Ez[log p(y=k+1|x)]   : function of disc and gen
-        featmat : function of disc and gen
+        featmatch : function of disc and gen
 
         '''
         loss_sup = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_val_ph, logits=logits_val))
@@ -45,7 +45,7 @@ class bilevel_semi_gan(object):
         loss_featmatch = tf.reduce_mean(tf.abs(m1 - m2))
 
         self.f = loss_sup + loss_unlab + loss_gen
-        self.g = loss_featmatch 
+        self.g = loss_featmatch #- loss_gen
 
         self.bl = bilevel_penalty(sess,self.f,self.g,var_disc,var_gen,lr_u,lr_v,rho_0,lamb_0,eps_0,c_rho,c_lamb,c_eps)
         
