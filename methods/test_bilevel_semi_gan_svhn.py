@@ -40,8 +40,8 @@ nepochs = 101
 niter = 1
 batch_size = 100#128
 
-rho_0 = 1E0
-lamb_0 = 1E0
+rho_0 = 1E1
+lamb_0 = 0.#1E0
 eps_0 = 1E0
 
 c_rho = 2
@@ -162,14 +162,14 @@ def main(argv=None):
                 ind_tr = ind_shuf[ind_batch]
                 ind_val = np.random.choice(Nval, size=(batch_size), replace=False)
                 #f,gvnorm,lamb_g = bl.train(X_train[ind_tr,:],X_val[ind_val,:],Y_val[ind_val,:],niter)
-                if True:#epoch<50: # Burn-in ?
+                if epoch<10: # Burn-in ?
                     f,g = bl.update_alternating(X_train[ind_tr,:],X_val[ind_val,:],Y_val[ind_val,:])
                     #f,g = bl.update_singlelevel(X_train[ind_tr,:],X_val[ind_val,:],Y_val[ind_val,:])                    
                 else:
                     f,gvnorm,lamb_g = bl.update(X_train[ind_tr,:],X_val[ind_val,:],Y_val[ind_val,:])
                     
 
-            if True:#epoch<50:#%1==0:
+            if epoch<10:#%1==0:
                 print('epoch %d: f=%f, g=%f'%(epoch,f,g))
             else:
                 rho_t,lamb_t,eps_t = sess.run([bl.bl.rho_t,bl.bl.lamb_t,bl.bl.eps_t])

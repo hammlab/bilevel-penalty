@@ -44,10 +44,14 @@ class bilevel_semi_gan(object):
         m2 = tf.reduce_mean(feat_gen, axis=0)
         loss_featmatch = tf.reduce_mean(tf.abs(m1 - m2))
 
-        self.f = loss_sup + loss_unlab + loss_gen
-        self.g = loss_featmatch #- loss_gen
+        #self.f = loss_sup + loss_unlab + loss_gen
+        #self.g = loss_featmatch #- loss_gen
+        self.f = loss_featmatch #- loss_gen
+        self.g = loss_sup + loss_unlab + loss_gen
 
-        self.bl = bilevel_penalty(sess,self.f,self.g,var_disc,var_gen,lr_u,lr_v,rho_0,lamb_0,eps_0,c_rho,c_lamb,c_eps)
+
+        #self.bl = bilevel_penalty(sess,self.f,self.g,var_disc,var_gen,lr_u,lr_v,rho_0,lamb_0,eps_0,c_rho,c_lamb,c_eps)
+        self.bl = bilevel_penalty(sess,self.f,self.g,var_gen,var_disc,lr_u,lr_v,rho_0,lamb_0,eps_0,c_rho,c_lamb,c_eps)        
         
         self.loss_simple = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits_val,labels=y_val_ph))
         self.optim_simple = tf.train.AdamOptimizer(lr_u).minimize(self.loss_simple,var_list=var_disc)
@@ -55,8 +59,10 @@ class bilevel_semi_gan(object):
         optim_u = tf.train.AdamOptimizer(lr_u)
         optim_v = tf.train.AdamOptimizer(lr_v)
 
-        self.min_u = optim_u.minimize(self.f,var_list=var_disc)
-        self.min_v = optim_v.minimize(self.g,var_list=var_gen)
+        #self.min_u = optim_u.minimize(self.f,var_list=var_disc)
+        #self.min_v = optim_v.minimize(self.g,var_list=var_gen)
+        self.min_u = optim_u.minimize(self.f,var_list=var_gen)
+        self.min_v = optim_v.minimize(self.g,var_list=var_disc)
         
         #self.sess.run(self.init)
         #self.sess.run(tf.global_variables_initializer())

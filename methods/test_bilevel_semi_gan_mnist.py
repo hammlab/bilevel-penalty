@@ -40,11 +40,11 @@ nepochs = 101
 niter = 1
 batch_size = 100#128
 
-rho_0 = 1E0
-lamb_0 = 1E0
+rho_0 = 1E1
+lamb_0 = 0.#1E0
 eps_0 = 1E0
 
-c_rho = 2
+c_rho = 2.
 c_lamb = 0.5
 c_eps = 0.5
 
@@ -149,7 +149,7 @@ def main(argv=None):
                 #f,gvnorm,lamb_g = bl.train(X_train[ind_tr,:],X_val[ind_val,:],Y_val[ind_val,:],niter)
                 
                 ## Singlelevel cannot work, because min_v loss_gen is wrong. It should be min_v -loss_gen.
-                if True:#epoch<20: # Burn-in ?
+                if epoch<10: # Burn-in ?
                     f,g = bl.update_alternating(X_train[ind_tr,:],X_val[ind_val,:],Y_val[ind_val,:])
                     #f,g = bl.update_singlelevel(X_train[ind_tr,:],X_val[ind_val,:],Y_val[ind_val,:])
                 else:
@@ -157,9 +157,8 @@ def main(argv=None):
                     f,gvnorm,lamb_g = bl.update(X_train[ind_tr,:],X_val[ind_val,:],Y_val[ind_val,:])
                     
 
-            if True:#epoch<20:#%1==0:
-                pass
-                #print('epoch %d: f=%f, g=%f'%(epoch,f,g))
+            if epoch<10:#%1==0:
+                print('epoch %d: f=%f, g=%f'%(epoch,f,g))
             else:
                 #print('epoch %d: f=%f, g=%f'%(epoch,f,g))
                 rho_t,lamb_t,eps_t = sess.run([bl.bl.rho_t,bl.bl.lamb_t,bl.bl.eps_t])
