@@ -27,21 +27,6 @@ import numpy as np
 def l2norm_sq(xs):
     return tf.reduce_sum([tf.reduce_sum(tf.square(t)) for t in xs])
 
-def l2norm_sq_diff(xs,ys):
-    return tf.reduce_sum([tf.reduce_sum(tf.square(xs[i]-ys[i])) for i in range(len(xs))])
-
-def l2norm_sq_adiff(a,xs,ys):
-    return tf.reduce_sum([tf.reduce_sum(tf.square(tf.exp(a[i])*(xs[i]-ys[i]))) for i in range(len(xs))])
-
-def assign_list(xs,ys):
-    return [tf.assign(xs[i],ys[i]) for i in range(len(xs))]
-    
-def addmult_lists(x,a,y):
-    tsum = []
-    for i in range(len(x)):
-        tsum.append(x[i]+a*y[i])
-    return tsum
-
 
 class bilevel_penalty(object):
 
@@ -98,7 +83,7 @@ class bilevel_penalty(object):
         '''
         
 
-    def train(self,feed_dict,niter=1):
+    def update(self,feed_dict,niter=1):
 
         for it in range(niter):
             self.sess.run(self.min_v,feed_dict)

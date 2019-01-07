@@ -63,17 +63,19 @@ class bilevel_penalty(object):
         self.gvnorm = 0.5*self.rho_t*l2norm_sq(dgdv)
         self.lamb_g = self.lamb_t*g
 
-        h = f + self.gvnorm + self.lamb_g
+        #h = f + self.gvnorm + self.lamb_g
+        h_upper = f + self.gvnorm #+ self.lamb_g # No lamb_g term
+        h_lower = f + self.gvnorm + self.lamb_g
 
         optim_u = tf.train.AdamOptimizer(lr_u)
         optim_v = tf.train.AdamOptimizer(lr_v)
 
-        self.min_u = optim_u.minimize(h,var_list=u)
-        self.min_v = optim_v.minimize(h,var_list=v)
+        self.min_u = optim_u.minimize(h_upper,var_list=u)
+        self.min_v = optim_v.minimize(h_lower,var_list=v)
         
-        tgrad_and_var = optim_u.compute_gradients(h, var_list=u)
+        tgrad_and_var = optim_u.compute_gradients(h_upper, var_list=u)
         self.hunorm = tf.reduce_sum([tf.reduce_sum(tf.square(t[0])) for t in tgrad_and_var])
-        tgrad_and_var = optim_v.compute_gradients(h, var_list=v)
+        tgrad_and_var = optim_v.compute_gradients(h_lower, var_list=v)
         self.hvnorm = tf.reduce_sum([tf.reduce_sum(tf.square(t[0])) for t in tgrad_and_var])
 
         #self.del_v,_ = zip(*(optim_v.compute_gradients(loss, var_list=v)
@@ -86,8 +88,8 @@ class bilevel_penalty(object):
         self.min_v_singlelevel = tf.train.AdamOptimizer(lr_v).minimize(self.loss_singlelevel,var_list=v)
 
         ## alternating: min_u f(u,v), min_v g(u,v)
-        self.min_u_alternating = tf.train.AdamOptimizer(lr_u).minimize(f,var_list=u)
-        self.min_v_alternating = tf.train.AdamOptimizer(lr_v).minimize(g,var_list=v)        
+        #self.min_u_alternating = tf.train.AdamOptimizer(lr_u).minimize(f,var_list=u)
+        #self.min_v_alternating = tf.train.AdamOptimizer(lr_v).minimize(g,var_list=v)        
 
         
 
@@ -112,9 +114,9 @@ class bilevel_penalty(object):
         return self.sess.run([self.f,self.g],feed_dict)
 
 
-    def update_alternating(self,feed_dict):
-        self.sess.run([self.min_u_alternating,self.min_v_alternating],feed_dict)
-        return self.sess.run([self.f,self.g],feed_dict)
+    #def update_alternating(self,feed_dict):
+    #    self.sess.run([self.min_u_alternating,self.min_v_alternating],feed_dict)
+    #   return self.sess.run([self.f,self.g],feed_dict)
     
 
     '''
