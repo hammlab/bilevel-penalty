@@ -54,11 +54,11 @@ Obtain Omniglot and Mini-Imagenet datasets from the following Github page of the
 
 ### Omniglot Experiments:
 
-Run [test_bilevel_few_shot_learning_omniglot.py](few_shot_learning/miniimagenet_experiments/Penalty/test_bilevel_few_shot_learning_omniglot.py)
+Run [test_bilevel_few_shot_learning_omniglot.py](few_shot_learning/omniglot_experiments/Penalty/test_bilevel_few_shot_learning_omniglot.py)
 
 ### Mini-Imagenet Experiments:
 
-Run [test_bilevel_few_shot_learning_miniimagenet.py](few_shot_learning/omniglot_experiments/Penalty/test_bilevel_few_shot_learning_miniimagenet.py)
+Run [test_bilevel_few_shot_learning_miniimagenet.py](few_shot_learning/miniimagenet_experiments/Penalty/test_bilevel_few_shot_learning_miniimagenet.py)
 
 ## Data poisoning experiments
 
@@ -68,21 +68,21 @@ Run [test_bilevel_few_shot_learning_miniimagenet.py](few_shot_learning/omniglot_
 
 Obtain data using keras
 	
-Run test_bilevel_poisoning_untargeted.py by specifying number of poisoned points to add on line 10
+Run [test_bilevel_poisoning_untargeted.py](data_poisoning/data_augmentation_attacks/untargeted_attacks/Penalty/test_bilevel_poisoning_untargeted.py) by specifying number of poisoned points to add on line 10
 		
 #### Targeted attack:
 
 Obtain data using keras
 
-Run test_bilevel_poisoning_targeted.py by specifying number of poisoned points to add on line 10
+Run [test_bilevel_poisoning_targeted.py](data_poisoning/data_augmentation_attacks/targeted_attacks/Penalty/test_bilevel_poisoning_targeted.py) by specifying number of poisoned points to add on line 10
 	
 ### Clean label attacks
 
 Download the dogfish dataset from https://worksheets.codalab.org/bundles/0x550cd344825049bdbb865b887381823c/ and store them in dogfish_dataset named directory
 
-Run extract_inception_features.py in the directory dogfish_dataset to extract 2048 dimensional features for all the images 
+Run [extract_inception_features.py](data_poisoning/clean_label_attacks/extract_inception_features.py) in the directory dogfish_dataset to extract 2048 dimensional features for all the images 
 
-Run test_bilevel_clean_label_attack.py from outside dogfish_dataset 
+Run [test_bilevel_clean_label_attack.py](data_poisoning/clean_label_attacks/test_bilevel_clean_label_attack.py) from outside dogfish_dataset 
 
 
 ### Citing
