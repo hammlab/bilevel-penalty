@@ -17,7 +17,7 @@ The codes for each experiment are specified in different folders of this reposit
 6. Numpy
 
 ## Synthetic examples
-Run test_synthetic.py (located at synthetic_examples/ ) after changing the settings of the test (e.g., number of iterations, or the location to store results.)
+Run [test_synthetic.py](synthetic_examples/test_synthetic.py) after changing the settings of the test (e.g., number of iterations, or the location to store results.)
 
 ## Data denoising using importance learning experiments
 ### MNIST Experiments:
