@@ -1,4 +1,4 @@
-# Penalty Method for Bilevel Optimization
+# Penalty Method for Deep Bilevel Optimization
 
 In this reporsitory we present the code used to generate the results for all the experiments in the paper titled <br><b> "Penalty Method for Inversion-Free Deep Bilevel Optimization"</b>
 
