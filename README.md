@@ -1,6 +1,6 @@
 # Penalty Method for Bilevel Optimization
 
-In this reporsitory we present the code used to generate all the results in the paper titled "Penalty Method for Inversion-Free Deep Bilevel Optimization"
+In this reporsitory we present the code used to generate the results for all the experiments in the paper titled <br><b> "Penalty Method for Inversion-Free Deep Bilevel Optimization"</b>
 
 ## Abstract
 Bilevel optimization appears in many important machine learning problems, including hyperparmeter tuning, data denoising,  meta-learning, and data poisoning. Different from simultaneous or multi-objective optimization, continuous bilevel optimization requires computing the inverse Hessian of the cost function to get the exact descent direction even for first-order methods. In this paper, we propose an inversion-free method using penalty function to efficiently solve large bilevel problems. We prove convergence of the penalty-based method under mild conditions and show that it computes the exact hypergradients asymptotically. Our method has smaller time and space complexity than forward- and reverse-mode differentiation, which allows us to solve large problems involving deep neural networks with up to 3.8M  upper-level and 1.4M lower-level variables. We apply our algorithm to denoising label noise with MNIST/CIFAR10/SVHN datasets, few-shot learning with Omniglot/Mini-ImageNet datasets, and training-data  poisoning with MNIST/ImageNet datasets. Our method outperforms or is comparable to the previous results in all of these tasks.
@@ -47,6 +47,41 @@ Obtain data from http://ufldl.stanford.edu/housenumbers/
 Split data into 72257 digits for training, 1000 digits for validation, 26032 digits for testing using pre_process_svhn_data.py (located at data_denoising/svhn_experiments/Penalty/)
 	
 Run test_bilevel_importance_learning_svhn.py (located at data_denoising/svhn_experiments/Penalty/) with appropriate noise level specified on line 60. 
+
+## Few-shot learning experiments
+
+Obtain Omniglot and Mini-Imagenet datasets from the following Github page of the paper Meta-Learning for Semi-Supervised Few-Shot Classification https://github.com/renmengye/few-shot-ssl-public
+
+### Omniglot Experiments:
+	Run test_bilevel_few_shot_learning_omniglot.py (located in few_shot_learning/miniimagenet_experiments/Penalty/ )
+
+### Mini-Imagenet Experiments:
+	Run test_bilevel_few_shot_learning_miniimagenet.py (located in few_shot_learning/omniglot_experiments/Penalty/ )
+
+## Data poisoning experiments
+
+### Data Augmentation Attacks
+
+#### Untargeted attack:
+
+Obtain data using keras
+	
+Run test_bilevel_poisoning_untargeted.py by specifying number of poisoned points to add on line 10
+		
+#### Targeted attack:
+
+Obtain data using keras
+
+Run test_bilevel_poisoning_targeted.py by specifying number of poisoned points to add on line 10
+	
+### Clean label attacks
+
+Download the dogfish dataset from https://worksheets.codalab.org/bundles/0x550cd344825049bdbb865b887381823c/ and store them in dogfish_dataset named directory
+
+Run extract_inception_features.py in the directory dogfish_dataset to extract 2048 dimensional features for all the images 
+
+Run test_bilevel_clean_label_attack.py from outside dogfish_dataset 
+
 
 ### Citing
 If you use this package please cite
