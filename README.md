@@ -1,4 +1,4 @@
-# Penalty Method for Bilevel Optimization
+# Penalty Method for Deep Bilevel Optimization
 
 In this reporsitory we present the code used to generate the results for all the experiments in the paper titled <br><b> "Penalty Method for Inversion-Free Deep Bilevel Optimization"</b>
 
@@ -17,7 +17,7 @@ The codes for each experiment are specified in different folders of this reposit
 6. Numpy
 
 ## Synthetic examples
-Run test_synthetic.py (located at synthetic_examples/ ) after changing the settings of the test (e.g., number of iterations, or the location to store results.)
+Run [test_synthetic.py](synthetic_examples/test_synthetic.py) after changing the settings of the test (e.g., number of iterations, or the location to store results.)
 
 ## Data denoising using importance learning experiments
 ### MNIST Experiments:
@@ -26,27 +26,27 @@ Run test_synthetic.py (located at synthetic_examples/ ) after changing the setti
 	
 Obtain data using keras
 	
-Run test_bilevel_importance_learning_mnist.py (located at data_denoising/mnist_experiments/small_scale/)  with appropriate noise level specified on line 60.
+Run [test_bilevel_importance_learning_mnist.py](data_denoising/mnist_experiments/small_scale/test_bilevel_importance_learning_mnist.py)  with appropriate noise level specified on line 60.
 
 #### Large Scale:
 
 Obtain data using keras
    
-Run test_bilevel_importance_learning_mnist.py (located at data_denoising/mnist_experiments/large_scale/Penalty/) with appropriate noise level specified on line 62. 
+Run [test_bilevel_importance_learning_mnist.py](data_denoising/mnist_experiments/large_scale/Penalty/test_bilevel_importance_learning_mnist.py) with appropriate noise level specified on line 62. 
 
 ### CIFAR10 Experiments:
 
 Obtain data using keras
 	
-Run test_bilevel_importance_learning_cifar10.py (located at data_denoising/cifar10_experiments/Penalty/) with appropriate noise level specified on line 68. 
+Run [test_bilevel_importance_learning_cifar10.py](data_denoising/cifar10_experiments/Penalty/test_bilevel_importance_learning_cifar10.py) with appropriate noise level specified on line 68. 
 
 ### SVHN Experiments:
 
 Obtain data from http://ufldl.stanford.edu/housenumbers/
 	
-Split data into 72257 digits for training, 1000 digits for validation, 26032 digits for testing using pre_process_svhn_data.py (located at data_denoising/svhn_experiments/Penalty/)
+Split data into 72257 digits for training, 1000 digits for validation, 26032 digits for testing using [pre_process_svhn_data.py](data_denoising/svhn_experiments/Penalty/pre_process_svhn_data.py)
 	
-Run test_bilevel_importance_learning_svhn.py (located at data_denoising/svhn_experiments/Penalty/) with appropriate noise level specified on line 60. 
+Run [test_bilevel_importance_learning_svhn.py](data_denoising/svhn_experiments/Penalty/test_bilevel_importance_learning_svhn.py) with appropriate noise level specified on line 60. 
 
 ## Few-shot learning experiments
 
@@ -54,11 +54,11 @@ Obtain Omniglot and Mini-Imagenet datasets from the following Github page of the
 
 ### Omniglot Experiments:
 
-Run test_bilevel_few_shot_learning_omniglot.py (located in few_shot_learning/miniimagenet_experiments/Penalty/ )
+Run [test_bilevel_few_shot_learning_omniglot.py](few_shot_learning/miniimagenet_experiments/Penalty/test_bilevel_few_shot_learning_omniglot.py)
 
 ### Mini-Imagenet Experiments:
 
-Run test_bilevel_few_shot_learning_miniimagenet.py (located in few_shot_learning/omniglot_experiments/Penalty/ )
+Run [test_bilevel_few_shot_learning_miniimagenet.py](few_shot_learning/omniglot_experiments/Penalty/test_bilevel_few_shot_learning_miniimagenet.py)
 
 ## Data poisoning experiments
 
