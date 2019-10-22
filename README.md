@@ -53,10 +53,12 @@ Run test_bilevel_importance_learning_svhn.py (located at data_denoising/svhn_exp
 Obtain Omniglot and Mini-Imagenet datasets from the following Github page of the paper Meta-Learning for Semi-Supervised Few-Shot Classification https://github.com/renmengye/few-shot-ssl-public
 
 ### Omniglot Experiments:
-	Run test_bilevel_few_shot_learning_omniglot.py (located in few_shot_learning/miniimagenet_experiments/Penalty/ )
+
+Run test_bilevel_few_shot_learning_omniglot.py (located in few_shot_learning/miniimagenet_experiments/Penalty/ )
 
 ### Mini-Imagenet Experiments:
-	Run test_bilevel_few_shot_learning_miniimagenet.py (located in few_shot_learning/omniglot_experiments/Penalty/ )
+
+Run test_bilevel_few_shot_learning_miniimagenet.py (located in few_shot_learning/omniglot_experiments/Penalty/ )
 
 ## Data poisoning experiments
 
