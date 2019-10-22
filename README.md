@@ -22,23 +22,29 @@ Run test_synthetic.py (located at synthetic_examples/ ) after changing the setti
 ### Data denoising using importance learning experiments
 1. MNIST Experiments:
 
-	##### a. Small Scale:
+	a. Small Scale:
+	
 	Obtain data using keras
+	
 	Run test_bilevel_importance_learning_mnist.py (located at data_denoising/mnist_experiments/small_scale/)  with appropriate noise level specified on line 60.
 
 	 ##### b. Large Scale:
    Obtain data using keras
+   
    Run test_bilevel_importance_learning_mnist.py (located at data_denoising/mnist_experiments/large_scale/Penalty/) with appropriate noise level specified on line 62. 
 
 2. CIFAR10 Experiments:
 
 	Obtain data using keras
+	
 	Run test_bilevel_importance_learning_cifar10.py (located at data_denoising/cifar10_experiments/Penalty/) with appropriate noise level specified on line 68. 
 
 3. SVHN Experiments:
 
 	Obtain data from http://ufldl.stanford.edu/housenumbers/
+	
 	Split data into 72257 digits for training, 1000 digits for validation, 26032 digits for testing using pre_process_svhn_data.py (located at data_denoising/svhn_experiments/Penalty/)
+	
 	Run test_bilevel_importance_learning_svhn.py (located at data_denoising/svhn_experiments/Penalty/) with appropriate noise level specified on line 60. 
 
 
