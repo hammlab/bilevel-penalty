@@ -1,4 +1,8 @@
 ############## Imports ##############
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import ImageGrid
 import numpy as np
 import tensorflow as tf
 import keras
@@ -11,7 +15,7 @@ lr_u = 1E-2
 lr_v = 1E-3
 
 nepochs = 2001
-nepochs_bl = 1001
+nepochs_bl = 201
 niter = 10
 full_epochs = 5001
 
@@ -32,15 +36,15 @@ height = 299
 width = 299
 nch = 3
 
-dogsfishes = np.load('./dogfish_dataset/dataset_dog-fish_train-900_test-300.npz')
+dogsfishes = np.load('../dogfish_dataset/dataset_dog-fish_train-900_test-300.npz')
 X_train = np.array(dogsfishes['X_train'])
 Y_train = np.array(dogsfishes['Y_train'])
 X_test = np.array(dogsfishes['X_test'])
 Y_test = np.array(dogsfishes['Y_test'])
 
-X_train_features = np.load("./dogfish_dataset/X_train_features_inception.npy")
+X_train_features = np.load("../dogfish_dataset/X_train_features_inception.npy")
 
-X_test_features = np.load("./dogfish_dataset/X_test_features_inception.npy")
+X_test_features = np.load("../dogfish_dataset/X_test_features_inception.npy")
 
 mini = np.min(X_train)
 maxi = np.max(X_train)
@@ -95,23 +99,26 @@ for i in range(len(X_test)):
     bl_poisoning.bl.reset_penalty_parameters()
 
     _ = bl_poisoning.train_simple(X_train_features, Y_train, X_test_features, Y_test, nepochs)
-    print "Train Accuracy:", bl_poisoning.eval_accuracy(X_train_features, Y_train)
-    print "Test Accuracy:", bl_poisoning.eval_accuracy(X_test_features, Y_test)
+    print("Train Accuracy:", bl_poisoning.eval_accuracy(X_train_features, Y_train))
+    print("Test Accuracy:", bl_poisoning.eval_accuracy(X_test_features, Y_test))
         
     target_index, pred_label, correct_label = bl_poisoning.find_correct_example(X_test_features, Y_test, target_index + 1)
-    print "finding poisoned instance for test item:", target_index, pred_label[0], correct_label[0]
+    print("finding poisoned instance for test item:", target_index, pred_label[0], correct_label[0])
+    assert pred_label[0] == correct_label[0]
     
     target_instance = np.array(X_test_features[target_index].reshape([1, 2048]))
     target_plot = np.array(X_test[target_index])
     target_correct_label = Y_test[target_index].reshape([1,2])
-    print "Target instance Accuracy:", bl_poisoning.eval_accuracy(target_instance, target_correct_label)
+    print("Target instance Accuracy:", bl_poisoning.eval_accuracy(target_instance, target_correct_label))
+    
     
     a = np.array(X_train_features)
     b = np.array(X_train)
     c = np.array(Y_train)
     
-    dist, base_index, correct_label_base = bl_poisoning.find_closest_example(a, c, target_index, correct_label[0], Npoison)
-    print "Feature Distance:", dist, base_index, correct_label_base
+    dist, base_index, correct_label_base = bl_poisoning.find_closest_example(a, c, target_instance, correct_label[0], Npoison)
+    print("Feature Distance:", dist, base_index, correct_label_base)
+    assert dist[0] > 0
     
     base_instance = np.array(b[base_index].reshape([Npoison, height, width, 3]))
     base_correct_label = c[base_index].reshape([Npoison,2])
@@ -119,32 +126,62 @@ for i in range(len(X_test)):
     poison_instance = np.array(base_instance.reshape([Npoison, height, width, 3]))
     poison_correct_label = np.array(c[base_index].reshape([Npoison,2]))
     
+    '''
+    fig = plt.figure(1, (128, 10.))
+    grid = ImageGrid(fig, 121, nrows_ncols=(1, 4), axes_pad = 0.01)
+    grid[0].imshow((poison_instance[0].reshape(height, width, 3)+1)*0.5)
+    grid[0].axis('off')
+    grid[1].imshow((base_instance[0].reshape(height, width, 3)+1)*0.5)
+    grid[1].axis('off') 
+    grid[2].imshow((target_plot.reshape(height, width, 3)+1)*0.5)
+    grid[2].axis('off') 
+    grid[3].imshow((np.abs(base_instance[0]-poison_instance[0]).reshape(height, width, 3)+1)*0.5)
+    grid[3].axis('off') 
+    plt.savefig('X_poisoned_success_dogfish_bl_b_'+str(i)+'.pdf', bbox_inches='tight')
+    plt.close()
+    '''
+    
     bl_poisoning.bl.reset_lower_level()
     
-    for epoch in range(nepochs_bl):
+    if True:
+    
+        for epoch in range(nepochs_bl):
+            
+            f, gvnorm, gv_nu, lamb_g, new_X_poisoned = bl_poisoning.train(X_train_features, Y_train, target_instance, target_correct_label, base_instance, poison_instance, poison_correct_label, niter)
+            poison_instance = np.array(new_X_poisoned)
+            
+            if epoch%200==0:
+               rho_t,lamb_t,eps_t = sess.run([bl_poisoning.bl.rho_t,bl_poisoning.bl.lamb_t,bl_poisoning.bl.eps_t])
+               print('epoch %d (rho=%f, lamb=%f, eps=%f): h=%f + %f + %f + %f= %f'%
+                   (epoch,rho_t,lamb_t,eps_t,f,gvnorm, gv_nu,lamb_g,f+gvnorm+lamb_g+gv_nu))
+               
+        rep_u = sess.run(bl_poisoning.representation_u)
+    
+        new_X_train = np.array(np.concatenate([X_train_features, rep_u]))
+        new_Y_train = np.array(np.concatenate([Y_train, poison_correct_label]))
         
-        f, gvnorm, gv_nu, lamb_g, new_X_poisoned = bl_poisoning.train(X_train_features, Y_train, target_instance, target_correct_label, base_instance, poison_instance, poison_correct_label, niter)
-        poison_instance = np.array(new_X_poisoned)
+        sess.run(tf.variables_initializer(bl_poisoning.var_dogfish))
+        sess.run(tf.variables_initializer(bl_poisoning.optimizer_min_dogfish.variables()))
         
-        if epoch%200==0:
-           rho_t,lamb_t,eps_t = sess.run([bl_poisoning.bl.rho_t,bl_poisoning.bl.lamb_t,bl_poisoning.bl.eps_t])
-           print('epoch %d (rho=%f, lamb=%f, eps=%f): h=%f + %f + %f + %f= %f'%
-               (epoch,rho_t,lamb_t,eps_t,f,gvnorm, gv_nu,lamb_g,f+gvnorm+lamb_g+gv_nu))
-           
-    rep_u = sess.run(bl_poisoning.representation_u)
-
-    new_X_train = np.array(np.concatenate([X_train_features, rep_u]))
-    new_Y_train = np.array(np.concatenate([Y_train, poison_correct_label]))
+        acc = bl_poisoning.train_simple(new_X_train, new_Y_train, target_instance, target_correct_label, nepochs)
+        
+        if acc < 1.0:
+            
+            if found < 30:
+                save_X_target.append((target_plot.reshape(height, width, 3)+1)*0.5)
+                save_X_base.append((base_instance[0].reshape(height, width, 3)+1)*0.5)
+                save_X_poisoned.append((poison_instance[0].reshape(height, width, 3)+1)*0.5)
+                
+                np.save("target_instances.npy", save_X_target)
+                np.save("base_instances.npy", save_X_base)
+                np.save("poisoned_instances.npy", save_X_poisoned)
+            
+            print("Yay!! Success")
+            found += 1
+        else:
+            print("No success for this example")
+            unsuccessful.append(i)
+            np.save("unsuccessful.npy", unsuccessful)
+            print("Unsuccessful:", unsuccessful)
     
-    sess.run(tf.variables_initializer(bl_poisoning.var_dogfish))
-    sess.run(tf.variables_initializer(bl_poisoning.optimizer_min_dogfish.variables()))
-    
-    acc = bl_poisoning.train_simple(new_X_train, new_Y_train, target_instance, target_correct_label, nepochs)
-    
-    if acc < 1.0:
-        print "Yay!! Success"
-        found += 1
-    else:
-        print "No success for this example"
-    
-    print "Found:", found, " out of ", i+1, "\n\n"
+        print("Found:", found, " out of ", i+1, "\n\n")

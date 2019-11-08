@@ -107,8 +107,8 @@ class bilevel_poisoning(object):
                 print('epoch=%d/%d, loss=%f'%(epoch,nepochs,l))
         
         print("Accuracy simple")
-        print "Train Accuracy:", self.eval_accuracy(x_train_features, y_train)
-        print "Test Accuracy:", self.eval_accuracy(x_test_features, y_test)
+        print("Train Accuracy:", self.eval_accuracy(x_train_features, y_train))
+        print("Test Accuracy:", self.eval_accuracy(x_test_features, y_test))
         return self.eval_accuracy(x_test_features, y_test)
         
     def eval_accuracy(self, x_test_features, y_test):
@@ -122,20 +122,20 @@ class bilevel_poisoning(object):
         
         return acc / float(x_test_features.shape[0])
     
-    def find_correct_example(self, X_set, Y_set, currect_index = 0):
-        for i in range(currect_index, len(X_set)):
+    def find_correct_example(self, X_set, Y_set, current_index = 0):
+        for i in range(current_index, len(X_set)):
             pred_output = self.sess.run(self.prediction_dogfish, feed_dict = {self.x_dogfish_tf: X_set[i].reshape([1,2048])})
             if np.argmax(pred_output,1) == np.argmax(Y_set[i].reshape([1,2]), 1):
-                return i, np.argmax(pred_output,1),np.argmax(Y_set[i].reshape([1,2]), 1)
+                return i, np.argmax(pred_output,1), np.argmax(Y_set[i].reshape([1,2]), 1)
         
             
-    def find_closest_example(self, X_set, Y_set, target_index, correct_label, Npoison):
+    def find_closest_example(self, X_set, Y_set, target_instance, correct_label, Npoison):
         
         labels = np.argmax(Y_set, 1)
         incorrect_indices = np.argwhere(labels != correct_label).flatten()
         dist = np.ones(len(X_set))*1E10
         for i in range(len(incorrect_indices)):
-            dist[incorrect_indices[i]] = self.sess.run(self.rep_space_dist, feed_dict = {self.x_base_features_tf: X_set[incorrect_indices[i]].reshape([1,2048]), self.x_target_tf:X_set[target_index].reshape([1,2048])})
+            dist[incorrect_indices[i]] = self.sess.run(self.rep_space_dist, feed_dict = {self.x_base_features_tf: X_set[incorrect_indices[i]].reshape([1,2048]), self.x_target_tf:target_instance})
            
         dist_indices = np.argsort(dist)[:Npoison]
         return dist[dist_indices], dist_indices, np.argmax(Y_set[dist_indices].reshape([Npoison, 2]), 1)          
