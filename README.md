@@ -58,7 +58,7 @@ Run [test_bilevel_few_shot_learning_omniglot.py](few_shot_learning/omniglot_expe
 
 ### Mini-Imagenet Experiments:
 
-Run [test_bilevel_few_shot_learning_miniimagenet.py](few_shot_learning/miniimagenet_experiments/Penalty/test_bilevel_few_shot_learning_miniimagenet.py)
+Run [test_bilevel_few_shot_learning_miniimagenet.py](few_shot_learning/mini-imagenet_experiments/Penalty/test_bilevel_few_shot_learning_miniimagenet.py)
 
 ## Data poisoning experiments
 
