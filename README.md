@@ -54,11 +54,11 @@ Obtain Omniglot and Mini-Imagenet datasets from the following Github page of the
 
 ### Omniglot Experiments:
 
-Run [test_bilevel_few_shot_learning_omniglot.py](few_shot_learning/omniglot_experiments/Penalty/test_bilevel_few_shot_learning_omniglot.py)
+Run [test_bilevel_few_shot_learning_omniglot.py] (few_shot_learning/omniglot_experiments/Penalty/test_bilevel_few_shot_learning_omniglot.py) by setting N and K on lines 59 & 60 for N-way K-shot classification 
 
 ### Mini-Imagenet Experiments:
 
-Run [test_bilevel_few_shot_learning_miniimagenet.py](few_shot_learning/mini-imagenet_experiments/Penalty/test_bilevel_few_shot_learning_miniimagenet.py)
+Run [test_bilevel_few_shot_learning_miniimagenet.py](few_shot_learning/mini-imagenet_experiments/Penalty/test_bilevel_few_shot_learning_miniimagenet.py) by setting N and K on lines 37 & 38 for N-way K-shot classification 
 
 ## Data poisoning experiments
 
