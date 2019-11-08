@@ -25,25 +25,15 @@ Run [test_synthetic.py](synthetic_examples/test_synthetic.py) after changing the
 #### MNIST Experiments:
 
 ##### Small Scale:
-	
-Obtain data using keras
-	
 Run [test_bilevel_importance_learning_mnist.py](data_denoising/mnist_experiments/small_scale/test_bilevel_importance_learning_mnist.py)  with appropriate noise level specified on line 60.
 
-##### Large Scale:
-
-Obtain data using keras
-   
+##### Large Scale:   
 Run [test_bilevel_importance_learning_mnist.py](data_denoising/mnist_experiments/large_scale/Penalty/test_bilevel_importance_learning_mnist.py) with appropriate noise level specified on line 62. 
 
-#### CIFAR10 Experiments:
-
-Obtain data using keras
-	
+#### CIFAR10 Experiments:	
 Run [test_bilevel_importance_learning_cifar10.py](data_denoising/cifar10_experiments/Penalty/test_bilevel_importance_learning_cifar10.py) with appropriate noise level specified on line 68. 
 
 #### SVHN Experiments:
-
 Obtain data from [here](http://ufldl.stanford.edu/housenumbers/)
 	
 Split data into 72257 digits for training, 1000 digits for validation, 26032 digits for testing using [pre_process_svhn_data.py](data_denoising/svhn_experiments/Penalty/pre_process_svhn_data.py)
@@ -51,35 +41,25 @@ Split data into 72257 digits for training, 1000 digits for validation, 26032 dig
 Run [test_bilevel_importance_learning_svhn.py](data_denoising/svhn_experiments/Penalty/test_bilevel_importance_learning_svhn.py) with appropriate noise level specified on line 60. 
 
 ### Few-shot learning experiments
-
 Obtain Omniglot and Mini-Imagenet datasets from the [Github](https://github.com/renmengye/few-shot-ssl-public) page of the paper Meta-Learning for Semi-Supervised Few-Shot Classification 
 
 #### Omniglot Experiments:
-
 Run [test_bilevel_few_shot_learning_omniglot.py](few_shot_learning/omniglot_experiments/Penalty/test_bilevel_few_shot_learning_omniglot.py) by setting N and K on lines 59 & 60 for N-way K-shot classification 
 
 #### Mini-Imagenet Experiments:
-
 Run [test_bilevel_few_shot_learning_miniimagenet.py](few_shot_learning/mini-imagenet_experiments/Penalty/test_bilevel_few_shot_learning_miniimagenet.py) by setting N and K on lines 37 & 38 for N-way K-shot classification 
 
 ### Data poisoning experiments
 
 #### Data Augmentation Attacks
 
-##### Untargeted attack:
-
-Obtain data using keras
-	
+##### Untargeted attack:	
 Run [test_bilevel_poisoning_untargeted.py](data_poisoning/data_augmentation_attacks/untargeted_attacks/Penalty/test_bilevel_poisoning_untargeted.py) by specifying number of poisoned points to add on line 10
 		
 ##### Targeted attack:
-
-Obtain data using keras
-
 Run [test_bilevel_poisoning_targeted.py](data_poisoning/data_augmentation_attacks/targeted_attacks/Penalty/test_bilevel_poisoning_targeted.py) by specifying number of poisoned points to add on line 10
 	
 #### Clean label attacks
-
 Download the dogfish dataset from [here](https://worksheets.codalab.org/bundles/0x550cd344825049bdbb865b887381823c/) and store them in dogfish_dataset named directory
 
 Run [extract_inception_features.py](data_poisoning/clean_label_attacks/extract_inception_features.py) in the directory dogfish_dataset to extract 2048 dimensional features for all the images 
