@@ -2,7 +2,7 @@
 
 #### An efficient method to solve bilevel optimization problems appearing in the field of machine learning, specifically for dat denoising by importance learning, few-shot learning and training-data poisoning.
 
-This is the reporsitory for the experiments in the paper titled <b> "Penalty Method for Inversion-Free Deep Bilevel Optimization"</b>
+This is the reporsitory for the experiments of the paper <b>"Penalty Method for Inversion-Free Deep Bilevel Optimization"</b>
 
 ### Abstract
 Bilevel optimizations are at the center of several important machine learning problems such as hyperparameter tuning, data denoising, few-shot learning, data poisoning. Different from simultaneous or multi-objective optimization, obtaining the exact descent direction for continuous bilevel optimization requires computing the inverse of the hessian of the lower-level cost function, even for first order methods. In this paper, we propose a new method for solving bilevel optimization, using the penalty function, which avoids computing the inverse of the hessian. We prove convergence of the method under mild conditions and show that it computes the exact hypergradient asymptotically. Small space and time complexity of our method allows us to solve large-scale bilevel optimization problems involving deep neural networks with up to 3.8M upper-level and 1.4M lower-level variables. We present results of our method for data denoising on MNIST/CIFAR10/SVHN datasets, for few-shot learning on Omniglot/Mini-Imagenet datasets and for training-data poisoning on MNIST/Imagenet datasets. In all experiments, our method outperforms or is comparable to previously proposed methods both in terms of accuracy and run-time.
