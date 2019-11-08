@@ -52,7 +52,7 @@ Run [test_bilevel_importance_learning_svhn.py](data_denoising/svhn_experiments/P
 
 ### Few-shot learning experiments
 
-Obtain Omniglot and Mini-Imagenet datasets from the following Github page of the paper Meta-Learning for Semi-Supervised Few-Shot Classification https://github.com/renmengye/few-shot-ssl-public
+Obtain Omniglot and Mini-Imagenet datasets from the [Github](https://github.com/renmengye/few-shot-ssl-public) page of the paper Meta-Learning for Semi-Supervised Few-Shot Classification 
 
 #### Omniglot Experiments:
 
@@ -80,7 +80,7 @@ Run [test_bilevel_poisoning_targeted.py](data_poisoning/data_augmentation_attack
 	
 #### Clean label attacks
 
-Download the dogfish dataset from https://worksheets.codalab.org/bundles/0x550cd344825049bdbb865b887381823c/ and store them in dogfish_dataset named directory
+Download the dogfish dataset from [here](https://worksheets.codalab.org/bundles/0x550cd344825049bdbb865b887381823c/) and store them in dogfish_dataset named directory
 
 Run [extract_inception_features.py](data_poisoning/clean_label_attacks/extract_inception_features.py) in the directory dogfish_dataset to extract 2048 dimensional features for all the images 
 
