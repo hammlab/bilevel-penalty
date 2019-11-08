@@ -44,7 +44,7 @@ Run [test_bilevel_importance_learning_cifar10.py](data_denoising/cifar10_experim
 
 #### SVHN Experiments:
 
-Obtain data from http://ufldl.stanford.edu/housenumbers/
+Obtain data from [here](http://ufldl.stanford.edu/housenumbers/)
 	
 Split data into 72257 digits for training, 1000 digits for validation, 26032 digits for testing using [pre_process_svhn_data.py](data_denoising/svhn_experiments/Penalty/pre_process_svhn_data.py)
 	
