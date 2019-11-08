@@ -1,6 +1,6 @@
 import tensorflow as tf
 import numpy as np
-from bilevel_penalty_multivar_augm_lag import *
+from bilevel_penalty_multivar_augm_lag import bilevel_penalty
 
 def l2norm_sq(xs):
     return tf.reduce_sum([tf.reduce_sum(tf.square(t)) for t in xs])
@@ -32,8 +32,10 @@ class bilevel_meta(object):
         self.lr_u = lr_u
         self.lr_v = lr_v
         self.istraining_ph = istraining_ph
+              
 
         self.f = tf.reduce_mean([tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.cls_test[i],labels=self.y_test_ph[i,:])) for i in range(self.ntask)])
+                
         self.g = tf.reduce_mean([tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.cls_train[i],labels=self.y_train_ph[i,:])) for i in range(self.ntask)])
 
         self.bl = bilevel_penalty(sess,self.f,self.g,[self.var_filt],self.var_cls,[lr_u],lr_v*np.ones(self.ntask),rho_0,lamb_0,eps_0,nu_0,c_rho,c_lamb,c_eps)
@@ -44,7 +46,7 @@ class bilevel_meta(object):
         self.reset_opt_v = [[] for i in range(ntask)]
         self.min_v = [[] for i in range(ntask)]
         for i in range(ntask):
-            opt_v[i] = tf.train.AdamOptimizer(self.lr_v)
+            opt_v[i] = tf.train.AdamOptimizer(1E-3)
             self.min_v[i] = opt_v[i].minimize(self.g,var_list=self.var_cls[i])
             self.reset_opt_v[i] = tf.variables_initializer(opt_v[i].variables())
 

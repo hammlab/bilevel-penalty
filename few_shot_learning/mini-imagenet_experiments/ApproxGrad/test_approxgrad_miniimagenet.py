@@ -5,12 +5,11 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
 import tensorflow as tf
 import pickle
-from bilevel_meta_commonfilter import bilevel_meta
+from bilevel_approxgrad_metalearning import bilevel_meta
 from tensorflow.contrib import layers as tcl
 from keras.preprocessing.image import ImageDataGenerator
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
-
 
 datagen = ImageDataGenerator(
         #rotation_range=40,
@@ -34,8 +33,8 @@ data_augmentation = False
 conv = False
 pretrain = False
 
-nclass_per_task = 5 # N-way. Same for training and testing    
-ntrain_per_cls = 5 # K-shot
+nclass_per_task = 5# N-way. Same for training and testing    
+ntrain_per_cls = 1 # K-shot
 ntest_per_cls = 15
 
 if conv:
@@ -48,47 +47,44 @@ height = 84
 width = 84
 nch = 3
 
-rho_0 = 1E-2
-lamb_0 = 1E-2
-eps_0 = 1E-2
-nu_0 = 1E-4
-
-c_rho = 1.1
-c_lamb = 0.9
-c_eps = 0.9
-
-lr_u = 1E-3   
+lr_u = 1E-3
 lr_v = 1E-3
+lr_p = 1E-3
+sig = 1E-3
 
 if conv:
     scale = 10.
     if pretrain:
         niter_simple = 100
         niter_u = 2
-        niter_v = 20
+        niter_v = 10
+        niter_p = niter_v
     else:
         niter_simple = 100
-        niter_u = 1
-        niter_v = 20#20
+        niter_u = 2
+        niter_v = 20
+        niter_p = niter_v
 else:
     #Resnet
     scale = 10.
     if pretrain:
         niter_simple = 100
         niter_u = 2
-        niter_v = 20
+        niter_v = 10
+        niter_p = niter_v
     else:
         niter_simple = 100
         niter_u = 1
         niter_v = 20
+        niter_p = niter_v
 
-with open('./dataset_miniimagenet/mini-imagenet-cache-train.pkl', 'rb') as f:
+with open('../dataset_miniimagenet/mini-imagenet-cache-train.pkl', 'rb') as f:
     train_data = pickle.load(f)
 
-with open('./dataset_miniimagenet/mini-imagenet-cache-val.pkl', 'rb') as f:
+with open('../dataset_miniimagenet/mini-imagenet-cache-val.pkl', 'rb') as f:
     val_data = pickle.load(f)
 
-with open('./dataset_miniimagenet/mini-imagenet-cache-test.pkl', 'rb') as f:
+with open('../dataset_miniimagenet/mini-imagenet-cache-test.pkl', 'rb') as f:
     test_data = pickle.load(f)    
     
 
@@ -104,66 +100,6 @@ for i in range(len(test_data['image_data'])):
     X_test[i] = test_data['image_data'][i]/255.
     Y_test[i] = int(i/600.)
     
-def get_tasks_old(X, Y, num_classes, test = False):
-    
-    train_items_per_class = ntrain_per_cls
-    
-    X_train_batch = np.zeros((meta_batch_size, nclass_per_task * train_items_per_class, height, width, nch),np.float32)
-    Y_train_batch = np.zeros((meta_batch_size, nclass_per_task * train_items_per_class, nclass_per_task),np.float32)
-    
-    X_test_batch = np.zeros((meta_batch_size, nclass_per_task * ntest_per_cls, height, width, nch),np.float32)
-    Y_test_batch = np.zeros((meta_batch_size, nclass_per_task * ntest_per_cls, nclass_per_task),np.float32)
-    
-    for batch in range(meta_batch_size):
-        class_idx = np.arange(num_classes)
-        np.random.shuffle(class_idx)
-        selected_idx = class_idx[:nclass_per_task]
-        
-        start_train = 0
-        start_test = 0
-        for num_cls in range(nclass_per_task):
-            idxs = np.argwhere(Y == selected_idx[num_cls]).flatten()
-            np.random.shuffle(idxs)
-            idxs_train = idxs[:train_items_per_class]
-            idxs_test = idxs[train_items_per_class:train_items_per_class+ntest_per_cls]
-            
-            if data_augmentation and not test:
-                for train_X_batch in datagen.flow(X[idxs_train], batch_size=len(idxs_train), shuffle=False):
-                    break
-                
-                for test_X_batch in datagen.flow(X[idxs_test], batch_size=len(idxs_test), shuffle=False):
-                    break
-                
-                X_train_batch[batch][start_train:start_train+train_items_per_class] = train_X_batch
-                X_test_batch[batch][start_test:start_test+ntest_per_cls] = test_X_batch
-            
-            else:
-                X_train_batch[batch][start_train:start_train+train_items_per_class] = X[idxs_train]
-                X_test_batch[batch][start_test:start_test+ntest_per_cls] = X[idxs_test]
-            
-            Y_train_batch[batch][start_train:start_train+train_items_per_class] = np.zeros([train_items_per_class, nclass_per_task])
-            for j in range(train_items_per_class):
-                Y_train_batch[batch][start_train + j][num_cls] = 1
-            
-            Y_test_batch[batch][start_test:start_test+ntest_per_cls] = np.zeros([ntest_per_cls, nclass_per_task])
-            for j in range(ntest_per_cls):
-                Y_test_batch[batch][start_test + j][num_cls] = 1
-            
-            start_train += train_items_per_class
-            start_test += ntest_per_cls
-        
-        task_idx_train = np.arange((train_items_per_class) * nclass_per_task)
-        np.random.shuffle(task_idx_train)
-        X_train_batch[batch] = X_train_batch[batch][task_idx_train]
-        Y_train_batch[batch] = Y_train_batch[batch][task_idx_train]
-        
-        task_idx_test = np.arange((ntest_per_cls) * nclass_per_task)
-        np.random.shuffle(task_idx_test)
-        X_test_batch[batch] = X_test_batch[batch][task_idx_test]
-        Y_test_batch[batch] = Y_test_batch[batch][task_idx_test]
-    
-    return X_train_batch, Y_train_batch, X_test_batch, Y_test_batch
-
 def get_tasks(X, Y, num_classes, test = False):
     
     train_items_per_class = ntrain_per_cls
@@ -235,27 +171,25 @@ def get_tasks(X, Y, num_classes, test = False):
     #print(sorted(already_selected), len(np.unique(already_selected)))
     return X_train_batch, Y_train_batch, X_test_batch, Y_test_batch
 
-
 if False:
     print("Testing splits by plotting meta-batches")
     X_metatrain_train, Y_metatrain_train, X_metatrain_test, Y_metatrain_test = get_tasks(X_train, Y_train, num_classes = 64, test = False)
     if True:
         print(X_metatrain_train.shape, Y_metatrain_train.shape, X_metatrain_test.shape, Y_metatrain_test.shape)
-        if False:
-            for meta_it in range(meta_batch_size):
-                print("train", Y_metatrain_train[meta_it])
-                print("test", Y_metatrain_test[meta_it])
-                
-                fig = plt.figure(1)
-                grid = ImageGrid(fig, 111, nrows_ncols=(10, 10), axes_pad = 0.01)
-                for i in range(10**2):
-                    if i < 25:
-                        grid[i].imshow(X_metatrain_train[meta_it][i])
-                    else:
-                        grid[i].imshow(X_metatrain_test[meta_it][i-25])
-                    grid[i].axis('off')  
-                plt.savefig('batch_'+str(meta_it)+'.pdf', bbox_inches='tight')
-                print("\n\n")
+        for meta_it in range(meta_batch_size):
+            print("train", Y_metatrain_train[meta_it])
+            print("test", Y_metatrain_test[meta_it])
+            
+            fig = plt.figure(1)
+            grid = ImageGrid(fig, 111, nrows_ncols=(10, 10), axes_pad = 0.01)
+            for i in range(10**2):
+                if i < 25:
+                    grid[i].imshow(X_metatrain_train[meta_it][i])
+                else:
+                    grid[i].imshow(X_metatrain_test[meta_it][i-25])
+                grid[i].axis('off')  
+            plt.savefig('batch_'+str(meta_it)+'.pdf', bbox_inches='tight')
+            print("\n\n")
 
 istraining_ph = tf.placeholder_with_default(True,shape=())
 def conv_block(inputs, out_channels, name='conv'):
@@ -372,7 +306,7 @@ for i in range(meta_batch_size):
 blmt = bilevel_meta(sess,x_train_ph,x_test_ph,y_train_ph,y_test_ph,
     cls_train,cls_test,var_filt,var_cls,
     meta_batch_size,ntrain_per_cls,ntest_per_cls,nclass_per_task,
-    lr_u,lr_v,rho_0,lamb_0,eps_0,nu_0,c_rho,c_lamb,c_eps,istraining_ph)
+    lr_u,lr_v,lr_p,sig,istraining_ph)
 
 sess.run(tf.global_variables_initializer())
 
@@ -410,31 +344,35 @@ if pretrain:
                 for j in range(meta_batch_size):
                     accs[counter] = np.mean(np.argmax(pred[j], 1)==np.argmax(Y_metatest_test[j], 1))
                     counter += 1
-            print('mean acc = %f'%(accs.mean()))
-            if accs.mean() > max_mean_acc:
-                max_mean_acc = accs.mean()
-            print('max_acc=', max_mean_acc,"\n\n")
+            print('mean acc = %f'%(accs.mean()), '\n\n')
+            
             
             
 if not pretrain:
-    print('\n\nBilevel-training:')
-    n_meta_iterations = 20001
+    print('\n\nBilevel-training-Approxgrad:')
+    
+    if ntrain_per_cls == 5:
+        n_meta_iterations = 10001
+    else:
+        n_meta_iterations = 20001
+        
+        
     max_mean_acc = 0
     for meta_it in range(n_meta_iterations):
         
         X_metatrain_train, Y_metatrain_train, X_metatrain_test, Y_metatrain_test = get_tasks(X_train, Y_train, 64, test = False)
         blmt.reset_v_func()
         for it in range(niter_u):
-            f,gvnorm,gvnu,lamb_g = blmt.update(X_metatrain_train,Y_metatrain_train,X_metatrain_test,Y_metatrain_test,niter_v)
+            fval, gval, hval = blmt.update(X_metatrain_train, Y_metatrain_train, X_metatrain_test, Y_metatrain_test, niter_v, niter_p)
         
         if (meta_it + 1) % 1000 == 0:#test_times == 0 or meta_it == n_meta_iterations - 1:
-            rho_t,lamb_t,eps_t = sess.run([blmt.bl.rho_t,blmt.bl.lamb_t,blmt.bl.eps_t])
-            print('meta_it %d (rho=%f, lamb=%f, eps=%f): h=%f + %f + %f + %f = %f'%
-                (meta_it,rho_t,lamb_t,eps_t,f,gvnorm,gvnu,lamb_g,f+gvnorm+gvnu+lamb_g))
-
+            print(meta_it, nclass_per_task, ntrain_per_cls)
+            print('meta_it=', meta_it, ' fval = ', fval, ' gval = ', gval, ' hval = ', hval)
+        
+            
             ## Test phase is not bilevel. For each task, simply train with metatest-train and test with metatest-test.
             ## Metatrain-test
-            print('Metatest-test:', ntrain_per_cls, nclass_per_task, niter_v)
+            print('Metatest-test:')
             accs = np.nan*np.ones(test_times * meta_batch_size)
             counter = 0
             for i in range(test_times):
@@ -450,4 +388,4 @@ if not pretrain:
                     counter += 1
             
             print('mean acc = %f'%(accs.mean()))
-            
+           

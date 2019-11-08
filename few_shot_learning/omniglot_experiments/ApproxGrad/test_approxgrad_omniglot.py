@@ -6,11 +6,10 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
 from tensorflow.contrib import layers as tcl
 import tensorflow as tf
-from bilevel_meta_commonfilter import bilevel_meta
+from bilevel_approxgrad_metalearning import bilevel_meta
 import time
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
-
 
 #x_omniglot_1: ON pixels are white and OFF are black works better
 
@@ -47,48 +46,41 @@ if False:
     print('X.shape=', X.shape)
     print('Y.shape=', y.shape)
     
-    np.save('./x_omniglot_1.npy',X)
-    np.save('./y_omniglot_1.npy',y)
+    np.save('../x_omniglot_1.npy',X)
+    np.save('../y_omniglot_1.npy',y)
 else:
-    X = np.load('./x_omniglot_1.npy')
-    y = np.load('./y_omniglot_1.npy')
+    X = np.load('../x_omniglot_1.npy')
+    y = np.load('../y_omniglot_1.npy')
     nclass = 1623*4
     n = 32460*4
 
 test_classes_start = 1200
 nclass_per_task = 20# N-way. Same for training and testing    
-ntrain_per_cls = 5#K-shot
+ntrain_per_cls = 5 # K-shot
 ntest_per_cls = 15
-
-if nclass_per_task == 5:
-    n_meta_iterations = 5000
-    meta_batch_size = 30
-    test_times = 20
-else:
-    n_meta_iterations = 10000
-    meta_batch_size = 15
-    test_times = 40
 
 height = 28
 width = 28
 nch = 1
 
-rho_0 = 1E-2
-lamb_0 = 1E-2
-eps_0 = 1E-2
-nu_0 = 1E-4
-
-c_rho = 1.1
-c_lamb = 0.9
-c_eps = 0.9
+if nclass_per_task == 5:
+    n_meta_iterations = 5001
+    meta_batch_size = 30
+    test_times = 20
+else:
+    n_meta_iterations = 10001
+    meta_batch_size = 15
+    test_times = 40
 
 lr_u = 1E-2
 lr_v = 1E-2
+lr_p = 1E-2
+sig = 1E-3
 
 niter_simple = 100
 niter_u = 1
 niter_v = 20
-
+niter_p = niter_v
 
 def get_tasks(X, Y, for_train = True):
     
@@ -161,24 +153,21 @@ def get_tasks(X, Y, for_train = True):
 if False:
     print("Testing splits")
     X_metatrain_train, Y_metatrain_train, X_metatrain_test, Y_metatrain_test = get_tasks(X, y, for_train = False)
-   
-    if False:
-        print(X_metatrain_train.shape, Y_metatrain_train.shape, X_metatrain_test.shape, Y_metatrain_test.shape)
-        for meta_it in range(meta_batch_size):
-            print("train", Y_metatrain_train[meta_it])
-            print("test", Y_metatrain_test[meta_it])
-            
-            
-            fig = plt.figure(1)
-            grid = ImageGrid(fig, 121, nrows_ncols=(10, 10), axes_pad = 0.01)
-            for i in range(10**2):
-                if i < ntrain_per_cls * nclass_per_task:
-                    grid[i].imshow(X_metatrain_train[meta_it][i].reshape(28, 28), cmap='gray')
-                else:
-                    grid[i].imshow(X_metatrain_test[meta_it][i - ntrain_per_cls * nclass_per_task].reshape(28, 28), cmap='gray')
-                grid[i].axis('off')  
-            plt.savefig('metatrain_batch_'+str(meta_it)+'.pdf', bbox_inches='tight')
-            print("\n\n")
+    print(X_metatrain_train.shape, Y_metatrain_train.shape, X_metatrain_test.shape, Y_metatrain_test.shape)
+    for meta_it in range(meta_batch_size):
+        print("train", Y_metatrain_train[meta_it])
+        print("test", Y_metatrain_test[meta_it])
+        
+        fig = plt.figure(1)
+        grid = ImageGrid(fig, 121, nrows_ncols=(10, 10), axes_pad = 0.01)
+        for i in range(10**2):
+            if i < 25:
+                grid[i].imshow(X_metatrain_train[meta_it][i].reshape(28, 28), cmap='gray')
+            else:
+                grid[i].imshow(X_metatrain_test[meta_it][i-25].reshape(28, 28), cmap='gray')
+            grid[i].axis('off')  
+        plt.savefig('metatrain_batch_'+str(meta_it)+'.pdf', bbox_inches='tight')
+        print("\n\n")
 
 ########################################  MODEL  ###############################################
 istraining_ph = tf.placeholder_with_default(True,shape=())
@@ -252,6 +241,14 @@ def top_layer(ins, K=20):
     out = 10. * (tf.matmul(ins, W_top) + wat * b_top)/(ins_norm * W_top_norm)
     return out
 
+def top_layer_norm(ins, K=20):
+    W_top = tf.get_variable('W_top',[64, K],initializer=tf.random_normal_initializer(stddev=0.01))
+    b_top = tf.get_variable('b_top',[K],initializer=tf.constant_initializer(0.001))
+    
+    out = (tf.matmul(ins, W_top) + b_top)
+    
+    return out
+
 
 tf.set_random_seed(1234)
 sess=tf.Session(config=config)
@@ -316,7 +313,7 @@ print('Done')
 blmt = bilevel_meta(sess,x_train_ph,x_test_ph,y_train_ph,y_test_ph,
     cls_train,cls_test,var_filt,var_cls,
     meta_batch_size,ntrain_per_cls,ntest_per_cls,nclass_per_task,
-    lr_u,lr_v,rho_0,lamb_0,eps_0,nu_0,c_rho,c_lamb,c_eps,istraining_ph)
+    lr_u, lr_v, lr_p, sig,istraining_ph)
 
 sess.run(tf.global_variables_initializer())
 
@@ -370,22 +367,23 @@ if False:
 
 if True:
     print('\n\nBilevel-training:')
-    
-    for meta_it in range(1, 1+n_meta_iterations):
-        blmt.reset_v_func()
+    max_acc = 0
+    start = time.time()
+    for meta_it in range(1, n_meta_iterations):
+        #if meta_it == 2:
+        #    start = time.time()
         X_metatrain_train, Y_metatrain_train, X_metatrain_test, Y_metatrain_test = get_tasks(X, y, for_train = True)
+        blmt.reset_v_func()
         for i in range(niter_u):
-            f, gvnorm, gvnu, lamb_g = blmt.update(X_metatrain_train, Y_metatrain_train, X_metatrain_test, Y_metatrain_test, niter_v)
-        
+            fval, gval, hval = blmt.update(X_metatrain_train, Y_metatrain_train, X_metatrain_test, Y_metatrain_test, niter_v, niter_p)
+            
         if meta_it % 1000 == 0:
-            rho_t,lamb_t,eps_t = sess.run([blmt.bl.rho_t,blmt.bl.lamb_t,blmt.bl.eps_t])
-            print('meta_it %d (rho=%f, lamb=%f, eps=%f): h=%f + %f + %f + %f = %f'%
-                (meta_it,rho_t,lamb_t,eps_t,f,gvnorm,gvnu,lamb_g,f+gvnorm+gvnu+lamb_g))
+            print(meta_it, nclass_per_task, ntrain_per_cls, niter_v)
+            print('meta_it=', meta_it, ' fval = ', fval, ' gval = ', gval, ' hval = ', hval)
             
             ## Test phase is not bilevel. For each task, simply train with metatest-train and test with metatest-test.
-            
             ## Metatrain-test
-            print(meta_it, nclass_per_task, ntrain_per_cls, niter_v)
+            print('Metatest-test:', ntrain_per_cls)
             accs = np.nan*np.ones(test_times * meta_batch_size)
             counter = 0
             for i in range(test_times):
@@ -399,4 +397,3 @@ if True:
                     accs[counter] = np.mean(np.argmax(pred[j], 1)==np.argmax(Y_metatest_test[j], 1))
                     counter += 1
             print('mean acc = %f'%(accs.mean()))
-            
