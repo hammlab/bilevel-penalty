@@ -1,5 +1,7 @@
 # Penalty Method for Deep Bilevel Optimization
 
+### An efficient method to solve bilevel optimization problems appearing in the field of machine learning, specifically for dat denoising by importance learning, few-shot learning and training-data poisoning.
+
 In this reporsitory we present the code used to generate the results for all the experiments in the paper titled <br><b> "Penalty Method for Inversion-Free Deep Bilevel Optimization"</b>
 
 ## Abstract
