@@ -81,6 +81,13 @@ Run [test_bilevel_clean_label_attack.py](data_poisoning/clean_label_attacks/test
 If you use this package please cite
 <pre>
 <code>
-Add citation here
+@misc{mehra2019penalty,
+    title={Penalty Method for Inversion-Free Deep Bilevel Optimization},
+    author={Akshay Mehra and Jihun Hamm},
+    year={2019},
+    eprint={1911.03432},
+    archivePrefix={arXiv},
+    primaryClass={cs.LG}
+}
 </code>
 </pre>
