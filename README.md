@@ -34,20 +34,20 @@ Run [test_synthetic.py](applications/synthetic_examples/test_synthetic.py) after
 #### MNIST Experiments:
 
 ##### Small Scale:
-Run [test_bilevel_importance_learning_mnist.py](applications/data_denoising/mnist_experiments/small_scale/test_bilevel_importance_learning_mnist.py)  with appropriate noise level specified on line 60.
+Run [test_bilevel_importance_learning_mnist.py](applications/data_denoising/mnist_experiments/small_scale/test_bilevel_importance_learning_mnist.py)  with appropriate noise level specified on line 62.
 
 ##### Large Scale:   
-Run [test_bilevel_importance_learning_mnist.py](applications/data_denoising/mnist_experiments/large_scale/Penalty/test_bilevel_importance_learning_mnist.py) with appropriate noise level specified on line 62. 
+Run [test_bilevel_importance_learning_mnist.py](applications/data_denoising/mnist_experiments/large_scale/Penalty/test_bilevel_importance_learning_mnist.py) with appropriate noise level specified on line 64. 
 
 #### CIFAR10 Experiments:	
-Run [test_bilevel_importance_learning_cifar10.py](applications/data_denoising/cifar10_experiments/Penalty/test_bilevel_importance_learning_cifar10.py) with appropriate noise level specified on line 68. 
+Run [test_bilevel_importance_learning_cifar10.py](applications/data_denoising/cifar10_experiments/Penalty/test_bilevel_importance_learning_cifar10.py) with appropriate noise level specified on line 70. 
 
 #### SVHN Experiments:
 Obtain data from [here](http://ufldl.stanford.edu/housenumbers/)
 	
 Split data into 72257 digits for training, 1000 digits for validation, 26032 digits for testing using [pre_process_svhn_data.py](applications/data_denoising/svhn_experiments/Penalty/pre_process_svhn_data.py)
 	
-Run [test_bilevel_importance_learning_svhn.py](applications/data_denoising/svhn_experiments/Penalty/test_bilevel_importance_learning_svhn.py) with appropriate noise level specified on line 60. 
+Run [test_bilevel_importance_learning_svhn.py](applications/data_denoising/svhn_experiments/Penalty/test_bilevel_importance_learning_svhn.py) with appropriate noise level specified on line 62. 
 <hr>
 
 ### Few-shot learning experiments
@@ -65,10 +65,10 @@ Run [test_bilevel_few_shot_learning_miniimagenet.py](applications/few_shot_learn
 #### Data Augmentation Attacks
 
 ##### Untargeted attack:	
-Run [test_bilevel_poisoning_untargeted.py](applications/data_poisoning/data_augmentation_attacks/untargeted_attacks/Penalty/test_bilevel_poisoning_untargeted.py) by specifying number of poisoned points to add on line 10
+Run [test_bilevel_poisoning_untargeted.py](applications/data_poisoning/data_augmentation_attacks/untargeted_attacks/Penalty/test_bilevel_poisoning_untargeted.py) by specifying number of poisoned points to add on line 15
 		
 ##### Targeted attack:
-Run [test_bilevel_poisoning_targeted.py](applications/data_poisoning/data_augmentation_attacks/targeted_attacks/Penalty/test_bilevel_poisoning_targeted.py) by specifying number of poisoned points to add on line 10
+Run [test_bilevel_poisoning_targeted.py](applications/data_poisoning/data_augmentation_attacks/targeted_attacks/Penalty/test_bilevel_poisoning_targeted.py) by specifying number of poisoned points to add on line 36
 	
 #### Clean label attacks
 Download the dogfish dataset from [here](https://worksheets.codalab.org/bundles/0x550cd344825049bdbb865b887381823c/) and store them in dogfish_dataset named directory
