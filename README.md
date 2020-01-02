@@ -14,7 +14,7 @@ The codes for each experiment are specified in different folders of this reposit
 <hr>
 
 ### Libraries and packages used
-1. Tensorflow
+1. Tensorflow 1.15
 2. Keras
 3. Cleverhans
 4. H5py
@@ -24,39 +24,40 @@ The codes for each experiment are specified in different folders of this reposit
 
 ### Experiments
 <hr>
+Below we provide the link to the files that need to be run for replicating the results of Penalty as reported in the paper. We have also included all the codes for running the ApproxGrad comparisons in the corresponding directories as well. 
 
 ### Synthetic examples
-Run [test_synthetic.py](synthetic_examples/test_synthetic.py) after changing the settings of the test (e.g., number of iterations, or the location to store results.)
+Run [test_synthetic.py](applications/synthetic_examples/test_synthetic.py) after changing the settings of the test (e.g., number of iterations, or the location to store results.)
 <hr>
 
 ### Data denoising using importance learning experiments
 #### MNIST Experiments:
 
 ##### Small Scale:
-Run [test_bilevel_importance_learning_mnist.py](data_denoising/mnist_experiments/small_scale/test_bilevel_importance_learning_mnist.py)  with appropriate noise level specified on line 60.
+Run [test_bilevel_importance_learning_mnist.py](applications/data_denoising/mnist_experiments/small_scale/test_bilevel_importance_learning_mnist.py)  with appropriate noise level specified on line 60.
 
 ##### Large Scale:   
-Run [test_bilevel_importance_learning_mnist.py](data_denoising/mnist_experiments/large_scale/Penalty/test_bilevel_importance_learning_mnist.py) with appropriate noise level specified on line 62. 
+Run [test_bilevel_importance_learning_mnist.py](applications/data_denoising/mnist_experiments/large_scale/Penalty/test_bilevel_importance_learning_mnist.py) with appropriate noise level specified on line 62. 
 
 #### CIFAR10 Experiments:	
-Run [test_bilevel_importance_learning_cifar10.py](data_denoising/cifar10_experiments/Penalty/test_bilevel_importance_learning_cifar10.py) with appropriate noise level specified on line 68. 
+Run [test_bilevel_importance_learning_cifar10.py](applications/data_denoising/cifar10_experiments/Penalty/test_bilevel_importance_learning_cifar10.py) with appropriate noise level specified on line 68. 
 
 #### SVHN Experiments:
 Obtain data from [here](http://ufldl.stanford.edu/housenumbers/)
 	
-Split data into 72257 digits for training, 1000 digits for validation, 26032 digits for testing using [pre_process_svhn_data.py](data_denoising/svhn_experiments/Penalty/pre_process_svhn_data.py)
+Split data into 72257 digits for training, 1000 digits for validation, 26032 digits for testing using [pre_process_svhn_data.py](applications/data_denoising/svhn_experiments/Penalty/pre_process_svhn_data.py)
 	
-Run [test_bilevel_importance_learning_svhn.py](data_denoising/svhn_experiments/Penalty/test_bilevel_importance_learning_svhn.py) with appropriate noise level specified on line 60. 
+Run [test_bilevel_importance_learning_svhn.py](applications/data_denoising/svhn_experiments/Penalty/test_bilevel_importance_learning_svhn.py) with appropriate noise level specified on line 60. 
 <hr>
 
 ### Few-shot learning experiments
 Obtain Omniglot and Mini-Imagenet datasets from the [Github](https://github.com/renmengye/few-shot-ssl-public) page of the paper Meta-Learning for Semi-Supervised Few-Shot Classification 
 
 #### Omniglot Experiments:
-Run [test_bilevel_few_shot_learning_omniglot.py](few_shot_learning/omniglot_experiments/Penalty/test_bilevel_few_shot_learning_omniglot.py) by setting N and K on lines 59 & 60 for N-way K-shot classification 
+Run [test_bilevel_few_shot_learning_omniglot.py](applications/few_shot_learning/omniglot_experiments/Penalty/test_bilevel_few_shot_learning_omniglot.py) by setting N and K on lines 59 & 60 for N-way K-shot classification 
 
 #### Mini-Imagenet Experiments:
-Run [test_bilevel_few_shot_learning_miniimagenet.py](few_shot_learning/mini-imagenet_experiments/Penalty/test_bilevel_few_shot_learning_miniimagenet.py) by setting N and K on lines 37 & 38 for N-way K-shot classification 
+Run [test_bilevel_few_shot_learning_miniimagenet.py](applications/few_shot_learning/mini-imagenet_experiments/Penalty/test_bilevel_few_shot_learning_miniimagenet.py) by setting N and K on lines 37 & 38 for N-way K-shot classification 
 <hr>
 
 ### Data poisoning experiments
@@ -64,17 +65,17 @@ Run [test_bilevel_few_shot_learning_miniimagenet.py](few_shot_learning/mini-imag
 #### Data Augmentation Attacks
 
 ##### Untargeted attack:	
-Run [test_bilevel_poisoning_untargeted.py](data_poisoning/data_augmentation_attacks/untargeted_attacks/Penalty/test_bilevel_poisoning_untargeted.py) by specifying number of poisoned points to add on line 10
+Run [test_bilevel_poisoning_untargeted.py](applications/data_poisoning/data_augmentation_attacks/untargeted_attacks/Penalty/test_bilevel_poisoning_untargeted.py) by specifying number of poisoned points to add on line 10
 		
 ##### Targeted attack:
-Run [test_bilevel_poisoning_targeted.py](data_poisoning/data_augmentation_attacks/targeted_attacks/Penalty/test_bilevel_poisoning_targeted.py) by specifying number of poisoned points to add on line 10
+Run [test_bilevel_poisoning_targeted.py](applications/data_poisoning/data_augmentation_attacks/targeted_attacks/Penalty/test_bilevel_poisoning_targeted.py) by specifying number of poisoned points to add on line 10
 	
 #### Clean label attacks
 Download the dogfish dataset from [here](https://worksheets.codalab.org/bundles/0x550cd344825049bdbb865b887381823c/) and store them in dogfish_dataset named directory
 
-Run [extract_inception_features.py](data_poisoning/clean_label_attacks/extract_inception_features.py) in the directory dogfish_dataset to extract 2048 dimensional features for all the images 
+Run [extract_inception_features.py](applications/data_poisoning/clean_label_attacks/extract_inception_features.py) in the directory dogfish_dataset to extract 2048 dimensional features for all the images 
 
-Run [test_bilevel_clean_label_attack.py](data_poisoning/clean_label_attacks/test_bilevel_clean_label_attack.py) from outside dogfish_dataset 
+Run [test_bilevel_clean_label_attack.py](applications/data_poisoning/clean_label_attacks/test_bilevel_clean_label_attack.py) from outside dogfish_dataset 
 <hr>
 
 #### Citing
