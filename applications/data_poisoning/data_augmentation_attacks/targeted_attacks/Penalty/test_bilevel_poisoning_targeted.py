@@ -33,7 +33,7 @@ def get_balanced_set(X, Y, points):
 train_points = 1000
 val_points = 4000
 test_points = 5000
-poisoned_points = 10
+poisoned_points = 60
 
 lr_u = 1E-1
 lr_v = 1E-4
