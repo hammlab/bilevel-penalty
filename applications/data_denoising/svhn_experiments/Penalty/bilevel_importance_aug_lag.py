@@ -1,5 +1,5 @@
 import sys
-sys.path.append("../../../../../optimizers/data_denoising")
+sys.path.append("../../../../optimizers/penalty")
 import tensorflow as tf
 import numpy as np
 from bilevel_penalty_aug_lag import *

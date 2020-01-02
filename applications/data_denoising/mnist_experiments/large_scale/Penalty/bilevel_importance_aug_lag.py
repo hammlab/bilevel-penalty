@@ -1,5 +1,5 @@
 import sys
-sys.path.append("../../../../../optimizers/data_denoising")
+sys.path.append("../../../../../optimizers/penalty")
 import tensorflow as tf
 import numpy as np
 from bilevel_penalty_aug_lag import *
@@ -15,7 +15,7 @@ class bilevel_importance(object):
         self.y_test_tf = y_test_tf
         self.cls_train = cls_train
         self.cls_test = cls_test
-        self.var_cls = var_cls # v
+        self.var_cls = var_cls
         self.batch_size = batch_size
 
         self.importance_atanh_tf = tf.placeholder(tf.float32,[self.batch_size],'importance_atanh_tf')
@@ -30,15 +30,15 @@ class bilevel_importance(object):
         
         self.loss_simple = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.cls_train,labels=self.y_train_tf))
         self.optim_simple = tf.train.AdamOptimizer(lr_v).minimize(self.loss_simple,var_list=self.var_cls)
-
-    def train(self, x_train, y_train, x_test, y_test, importance_atanh, niter=1, update=0):
+        
+    def train(self, x_train, y_train, x_test, y_test, importance_atanh, niter=1):
         gvnorm = 0
         self.sess.run(self.assign_importance_atanh,feed_dict={self.importance_atanh_tf:importance_atanh})
 
         feed_dict={self.x_train_tf:x_train, self.y_train_tf:y_train, self.x_test_tf:x_test, self.y_test_tf:y_test}
         
         #Penalty Method
-        f, gvnorm, gv_nu, lamb_g = self.bl.update(feed_dict,niter, update)
+        f, gvnorm, gv_nu, lamb_g = self.bl.update(feed_dict,niter)
         
         timp_atanh = self.sess.run(self.importance_atanh)
 

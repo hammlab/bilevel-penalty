@@ -1,5 +1,5 @@
 import sys
-sys.path.append("../../../../../optimizers/few_shot_learning")
+sys.path.append("../../../../optimizers/penalty")
 from bilevel_penalty_multivar_augm_lag import bilevel_penalty
 import tensorflow as tf
 import numpy as np

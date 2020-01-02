@@ -1,5 +1,5 @@
 import sys
-sys.path.append("../../../../../optimizers/few_shot_learning")
+sys.path.append("../../../../optimizers/approxgrad")
 import tensorflow as tf
 import numpy as np
 from bilevel_approxgrad_multivar import bilevel_approxgrad_multivar

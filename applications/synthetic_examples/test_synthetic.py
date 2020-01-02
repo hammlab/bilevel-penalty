@@ -6,7 +6,10 @@ from __future__ import unicode_literals
 
 import os
 import sys
-sys.path.append("../../../../../optimizers/synthetic_examples")
+sys.path.append("../../optimizers/penalty")
+sys.path.append("../../optimizers/approxgrad")
+sys.path.append("../../optimizers/rmd")
+sys.path.append("../../optimizers/gd")
 import numpy as np
 from six.moves import xrange
 import matplotlib.pyplot as plt
@@ -23,8 +26,8 @@ from tensorflow.python.platform import flags
 #from keras.datasets import mnist
 import time
 
-import bilevel_penalty_augm_lag
-import bilevel_approxgrad
+import bilevel_penalty_aug_lag_synthetic
+import bilevel_approxgrad_synthetic
 import bilevel_rmd
 import bilevel_gd
 #import bilevel_invhess
@@ -45,22 +48,14 @@ lamb_0 = 1E1
 eps_0 = 1E0
 
 c_rho = 1.1
-#c_lamb = .9
-#c_eps = .9
 
 p,q,r = 10,10,10
 ntrial = 20
-Ts = [1,5,10]#,20,30]
-#Ts = [10]
-#Ts = [1]
+Ts = [1,5,10]
 std = 1
 
 examples = ['SMD20','SMD21','SMD24','SMD23']
-#examples = ['SMD20']
-#examples = ['SMD24','SMD23']
-#methods = ['ApproxGrad']#['GD','RMD','ApproxGrad','Penalty']
-#methods=  ['RMD']
-methods = ['ApproxGrad','RMD']
+methods = ['GD','RMD','ApproxGrad','Penalty']
 
 nTs = len(Ts)
 nexamples = len(examples)
@@ -211,7 +206,7 @@ def main(argv=None):
 
 						
             elif method=='ApproxGrad': ## Approximate hypergradient
-                bl = bilevel_approxgrad.bilevel_approxgrad(sess,f,g,[u1,u2],[v1,v2],lr_u,lr_v,lr_p,ulb,uub,vlb,vub)
+                bl = bilevel_approxgrad_synthetic.bilevel_approxgrad(sess,f,g,[u1,u2],[v1,v2],lr_u,lr_v,lr_p,ulb,uub,vlb,vub)
                 for n,niter in enumerate(Ts):
                     errs = np.nan*np.ones((nrec,ntrial))
                     fs = np.nan*np.ones((nrec,ntrial))
@@ -251,7 +246,7 @@ def main(argv=None):
 
                 
             elif method=='Penalty': ## Penalty method
-                bl = bilevel_penalty_augm_lag.bilevel_penalty(sess,f,g,[u1,u2],[v1,v2],lr_u,lr_v,rho_0,lamb_0,eps_0,c_rho,ulb,uub,vlb,vub)
+                bl = bilevel_penalty_aug_lag_synthetic.bilevel_penalty(sess,f,g,[u1,u2],[v1,v2],lr_u,lr_v,rho_0,lamb_0,eps_0,c_rho,ulb,uub,vlb,vub)
                 #bl = bilevel_penalty.bilevel_penalty(sess,f,g,[u1,u2],[v1,v2],lr_u,lr_v,rho_0,lamb_0,eps_0,c_rho,c_lamb,c_eps)
                 for n,niter in enumerate(Ts):
                     errs = np.nan*np.ones((nrec,ntrial))
@@ -315,171 +310,4 @@ if __name__ == '__main__':
 
 
 
-
-'''
-## Results
-
-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
-
-import os
-import sys
-
-import numpy as np
-from six.moves import xrange
-
-import matplotlib
-matplotlib.use('Agg') # no UI backend
-
-import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1 import ImageGrid
-import matplotlib.backends.backend_pdf
-
-ntrial = 20
-#Ts = [1,2,5,10]#,20,30]
-Ts = [1,5,10]
-stds = [1.]#[.99]
-examples = ['SMD20','SMD21','SMD24','SMD23']
-#examples = ['SMD23']
-methods = ['GD','RMD','ApproxGrad','Penalty']
-
-nTs = len(Ts)
-nstds = len(stds)
-nexamples = len(examples)
-nmethods = len(methods)
-
-nepoch = 40001
-nstep = 10
-rec = np.arange(0,nepoch,nstep)
-nrec = len(rec)
-
-
-errs = np.nan*np.ones((nrec,ntrial,nTs,nexamples,nmethods))
-rhos = np.nan*np.ones((nrec,ntrial,nTs,nexamples,nmethods))
-fs = np.nan*np.ones((nrec,ntrial,nTs,nexamples,nmethods))
-gs = np.nan*np.ones((nrec,ntrial,nTs,nexamples,nmethods))
-ftilde = np.nan*np.ones((nrec,ntrial,nTs,nexamples,nmethods))
-ts = np.nan*np.ones((ntrial,nTs,nexamples,nmethods))
-
-for m,method in enumerate(methods):
-    for e,ex in enumerate(examples):
-        for t,T in enumerate(Ts):
-            errs[:,:,t,e,m] = np.load('./results/simple_errs_%s_%s_T%d.npy'%(method,ex,T)).squeeze()
-            fs[:,:,t,e,m] = np.load('./results/simple_fs_%s_%s_T%d.npy'%(method,ex,T)).squeeze()
-            gs[:,:,t,e,m] = np.load('./results/simple_gs_%s_%s_T%d.npy'%(method,ex,T)).squeeze()
-            #ftilde[:,:,t,e,m] = np.load('./results/simple_ftilde_%s_%s_T%d.npy'%(method,ex,T)).squeeze()
-            #rhos[:,:,t,e,m] =np.load('./results/simple_rhos_%s_%s_T%d.npy'%(method,ex,T)).squeeze()
-            #ts[:,t,e,m] = np.load('./results/simple_ts_%s_%s_T%d.npy'%(method,ex,T)).squeeze()
-
-
-print(methods)
-for e,ex in enumerate(examples):
-    print(ex)
-    for t,T in enumerate(Ts):
-        print(T)
-        for m,method in enumerate(methods):
-            print('%.2f pm %.2f '%(np.mean(ts[:,t,e,m].squeeze()),np.std(ts[:,t,e,m].squeeze())))
-			
-
-
-
-for t,T in enumerate(Ts):
-    print(T)
-    for e,ex in enumerate(examples):
-        print(ex)
-        for m,method in enumerate(methods):
-            print('%d & '%(np.mean(ts[:,t,e,m].squeeze())))        
-			
-			
-
-for e,ex in enumerate(examples):
-    fig = plt.figure(e+1)
-    plt.clf()
-    for row in range(nTs):
-        for col in range(nmethods):
-            subplt = plt.subplot(nTs+1,nmethods,row*nmethods+col+1)
-            plt.plot(rec,np.squeeze(errs[:,:,row,e,col]),'y-',alpha=.5)            
-            plt.plot(rec,np.squeeze(errs[:,:,row,e,col].mean(axis=1)),'b-',linewidth=2.)
-            #plt.axis(0.,np.float(len(rec)),0., 50.)
-            plt.ylim(0.,40.)
-            #plt.ylim(0.,30.)
-            subplt.tick_params(axis='x', labelsize=8)
-            subplt.tick_params(axis='y', labelsize=8)                                    
-            if row==0:
-                plt.title('%s'%(methods[col]),fontsize=12)
-            if col==0:
-                plt.ylabel('T=%d'%Ts[row],rotation='horizontal',horizontalalignment='right',fontsize=12)
-            #if row==0: 
-            #    plt.legend()
-    plt.tight_layout(pad=0.25)
-    #plt.show(block=False)
-    
-    with matplotlib.backends.backend_pdf.PdfPages('./results/bilevel_simple_%s.pdf'%(ex)) as pdf:
-        pdf.savefig(bbox_inches='tight')
-
-
-
-
-
-
-#################################################################
-
-import numpy as np
-from mpl_toolkits.mplot3d import Axes3D
-#from matplotlib.patches import FancyArrowPatch
-#from mpl_toolkits.mplot3d import proj3d
-
-import matplotlib.pyplot as plt
-import matplotlib.backends.backend_pdf
-#from matplotlib import colors as mcolors
-from matplotlib import cm
-from matplotlib.ticker import LinearLocator, FormatStrFormatter
-
-
-if False:
-    ## SMD20: f = u^2+v^2 - 1, g = (1-u-v)^2
-    u,v = np.linspace(-5.,5.,100), np.linspace(-5.,5.,100)
-    U,V = np.meshgrid(u,v)
-    F = U**2 + V**2 - 1.
-    G = (1.-U-V)**2
-    vs = 1.-u
-    Fs = u**2 + vs**2 - 1.
-if True:
-    ## SMD21: f = v^2 - (u-v)^2,  g = (u-v)^2. Not saddle. Sol: (0,0)
-    u,v = np.linspace(-5.,5.,100), np.linspace(-5.,5.,100)
-    U,V = np.meshgrid(u,v)
-    F = V**2 - (U-V)**2
-    G = (U-V)**2
-    vs = u
-    Fs = vs**2 - (u-vs)**2
-
-
-fig = plt.figure(1)
-#plt.clf()
-ax = fig.gca(projection='3d')
-if True:
-    ax.plot_surface(U,V,F,cmap=cm.coolwarm,linewidth=0,edgecolors='none',antialiased=True)
-    #ax.plot_surface(U,V,F,cmap=cm.coolwarm,rstride=5,cstride=5,edgecolors='none',antialiased=True)    
-else:
-    ax.plot_wireframe(U,V,F,rstride=5,cstride=5,linewidth=0.5,color='k')#gray')
-
-ax.view_init(elev=45, azim=-45) #Reproduce view
-ax.set_xlabel('U',fontsize=18)
-ax.set_ylabel('V',fontsize=18)
-#plt.legend(fontsize=18, loc='upper right')
-
-plt.plot(u,vs,Fs,color='k')
-#plt.plot(range(max_iter),gss[i],specs[i],label=labels[i],markersize=6,linewidth=2)
-
-plt.show(block=False)
-
-with matplotlib.backends.backend_pdf.PdfPages('SMD21.pdf') as pdf:
-    pdf.savefig(bbox_inches='tight')
-
-            
-'''
 
