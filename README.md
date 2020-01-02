@@ -73,7 +73,7 @@ Run [test_bilevel_poisoning_targeted.py](applications/data_poisoning/data_augmen
 #### Clean label attacks
 Download the dogfish dataset from [here](https://worksheets.codalab.org/bundles/0x550cd344825049bdbb865b887381823c/) and store them in dogfish_dataset named directory
 
-Run [extract_inception_features.py](applications/data_poisoning/clean_label_attacks/extract_inception_features.py) in the directory dogfish_dataset to extract 2048 dimensional features for all the images 
+Run [extract_inception_features.py](applications/data_poisoning/clean_label_attacks/dogfish_dataset/extract_inception_features.py) to extract 2048 dimensional features for all the images 
 
 Run [test_bilevel_clean_label_attack.py](applications/data_poisoning/clean_label_attacks/test_bilevel_clean_label_attack.py) from outside dogfish_dataset 
 <hr>
