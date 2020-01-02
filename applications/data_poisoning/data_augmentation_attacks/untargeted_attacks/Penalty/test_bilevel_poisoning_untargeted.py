@@ -12,7 +12,7 @@ import keras
 train_points = 1000
 val_points = 1000
 test_points = 8000
-poisoned_points = 0
+poisoned_points = 60
 
 lr_u = 1E-1
 lr_v = 1E-3
