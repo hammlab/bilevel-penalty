@@ -124,7 +124,7 @@ def main(argv=None):
         _,y_train_init = bl_imp.eval_simple(X_train, Y_train)
         
         importance_atanh = np.ones((Ntrain))*np.arctanh(2.*0.4-1.)
-        ind_correct = np.where(np.argmax(Y_train)==y_train_init)[0]
+        ind_correct = np.where(np.argmax(Y_train,1)==y_train_init)[0]
         importance_atanh[ind_correct] = np.arctanh(2.*0.6-1.)
         
     if True:
