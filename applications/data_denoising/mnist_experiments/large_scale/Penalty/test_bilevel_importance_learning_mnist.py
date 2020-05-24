@@ -15,7 +15,7 @@ lr_u = 3
 lr_v = 1E-5
 
 nepochs = 101
-niter = 50
+niter = 20
 batch_size = 200
 
 rho_0 = 1E-2
