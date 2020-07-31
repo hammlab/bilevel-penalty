@@ -68,10 +68,10 @@ class bilevel_penalty(object):
         self.min_u = optim_u.minimize(h_upper,var_list=u)
         self.min_v = optim_v.minimize(h_lower,var_list=v)
         
-        tgrad_and_var = optim_u.compute_gradients(h_upper, var_list=u)
-        self.hunorm = tf.reduce_sum([tf.reduce_sum(tf.square(t[0])) for t in tgrad_and_var])
-        tgrad_and_var = optim_v.compute_gradients(h_lower, var_list=v)
-        self.hvnorm = tf.reduce_sum([tf.reduce_sum(tf.square(t[0])) for t in tgrad_and_var])
+        tgrad_and_var_u = optim_u.compute_gradients(h_upper, var_list=u)
+        self.hunorm = tf.reduce_sum([tf.reduce_sum(tf.square(t[0])) for t in tgrad_and_var_u])
+        tgrad_and_var_v = optim_v.compute_gradients(h_lower, var_list=v)
+        self.hvnorm = tf.reduce_sum([tf.reduce_sum(tf.square(t[0])) for t in tgrad_and_var_v])
 
         #self.del_v,_ = zip(*(optim_v.compute_gradients(loss, var_list=v)
         #self.loss_simple = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=g,labels=self.y_train_tf))
