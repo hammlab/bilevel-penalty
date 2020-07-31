@@ -55,13 +55,13 @@ class bilevel_penalty(object):
 
         self.hunorm = 0
         for i in range(len(us)):
-            tgrad_and_var = optim_u[i].compute_gradients(h_upper, var_list=us[i])
-            self.hunorm += tf.reduce_sum([tf.reduce_sum(tf.square(t[0])) for t in tgrad_and_var])
+            tgrad_and_var_u = optim_u[i].compute_gradients(h_upper, var_list=us[i])
+            self.hunorm += tf.reduce_sum([tf.reduce_sum(tf.square(t[0])) for t in tgrad_and_var_u])
 
         self.hvnorm = 0
         for i in range(len(vs)):
-            tgrad_and_var = optim_v[i].compute_gradients(h_lower, var_list=vs[i])
-            self.hvnorm += tf.reduce_sum([tf.reduce_sum(tf.square(t[0])) for t in tgrad_and_var])
+            tgrad_and_var_v = optim_v[i].compute_gradients(h_lower, var_list=vs[i])
+            self.hvnorm += tf.reduce_sum([tf.reduce_sum(tf.square(t[0])) for t in tgrad_and_var_v])
             
     def update(self,feed_dict,niter=1):
 
